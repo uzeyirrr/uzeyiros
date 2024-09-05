@@ -1,4 +1,3 @@
-#![feature(asm_const)]
 #![feature(c_variadic)]
 #![feature(exposed_provenance)]
 #![feature(naked_functions)]
