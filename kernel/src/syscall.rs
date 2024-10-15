@@ -3,7 +3,7 @@ use crate::println;
 use crate::proc::{self, myproc};
 use crate::sysfile;
 use crate::trap;
-use core::arch::asm;
+use core::arch::naked_asm;
 use core::fmt::Debug;
 
 pub unsafe fn init() {
@@ -64,7 +64,7 @@ extern "C" fn syscall(a0: usize, a1: usize, a2: usize, num: usize) -> i64 {
 unsafe extern "C" fn enter() -> ! {
     // Switch user and kernel GSBASE
     unsafe {
-        asm!(r#"
+        naked_asm!(r#"
             swapgs
 
             // Stash the user stack pointer and set the kernel
@@ -141,7 +141,7 @@ unsafe extern "C" fn enter() -> ! {
             "#,
             syscall = sym syscall,
             syscallret = sym syscallret,
-            options(att_syntax, noreturn)
+            options(att_syntax)
         );
     }
 }
@@ -149,7 +149,7 @@ unsafe extern "C" fn enter() -> ! {
 #[naked]
 pub unsafe extern "C" fn syscallret() {
     unsafe {
-        asm!(
+        naked_asm!(
             r#"
             cli
             // Skip %rax. It is the return value from the system call.
@@ -207,9 +207,9 @@ pub unsafe extern "C" fn syscallret() {
             swapgs
 
             // Return from system call
-            sysretq;
+            sysretq
             "#,
-            options(att_syntax, noreturn)
+            options(att_syntax)
         );
     }
 }

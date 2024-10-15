@@ -1,6 +1,5 @@
 #![allow(clippy::upper_case_acronyms)]
 #![allow(internal_features)]
-#![feature(const_mut_refs)]
 #![feature(core_intrinsics)]
 #![feature(exposed_provenance)]
 #![feature(naked_functions)]

@@ -5,12 +5,12 @@ use crate::trap::trap;
 use crate::volatile;
 use crate::FromZeros;
 use bitflags::bitflags;
-use core::arch::asm;
+use core::arch::{asm, naked_asm};
 use core::fmt;
 use core::ptr;
 use core::time;
 use seq_macro::seq;
-use zerocopy::{FromBytes, FromZeroes};
+use zerocopy::{FromBytes};
 
 #[cfg(all(target_arch = "x86_64", target_os = "none"))]
 mod asm {
@@ -21,7 +21,7 @@ mod asm {
 
 pub const PAGE_SIZE: usize = 4096;
 #[repr(C, align(4096))]
-#[derive(FromZeroes, FromBytes)]
+#[derive(FromBytes)]
 pub struct Page([u8; PAGE_SIZE]);
 unsafe impl FromZeros for Page {}
 
@@ -95,7 +95,7 @@ mod page_round_tests {
 
 const SMALL_STACK_SIZE: usize = 512;
 #[repr(C, align(512))]
-#[derive(FromBytes, FromZeroes)]
+#[derive(FromBytes)]
 pub struct SmallStack([u8; SMALL_STACK_SIZE]);
 unsafe impl FromZeros for SmallStack {}
 
@@ -780,9 +780,9 @@ macro_rules! gen_stub {
         #[naked]
         unsafe extern "C" fn $name() -> ! {
             unsafe {
-                asm!("pushq $0; pushq ${}; jmp {}",
+                naked_asm!("pushq $0; pushq ${}; jmp {}",
                     const $vecnum, sym alltraps,
-                    options(att_syntax, noreturn));
+                    options(att_syntax));
             }
         }
     };
@@ -792,9 +792,9 @@ macro_rules! gen_stub {
         #[naked]
         unsafe extern "C" fn $name() -> ! {
             unsafe {
-                asm!("pushq ${}; jmp {}",
+                naked_asm!("pushq ${}; jmp {}",
                     const $vecnum, sym alltraps,
-                    options(att_syntax, noreturn));
+                    options(att_syntax));
             }
         }
     };
@@ -838,7 +838,7 @@ seq!(N in 0..=255 {
 #[naked]
 unsafe extern "C" fn alltraps() -> ! {
     unsafe {
-        asm!(r#"
+        naked_asm!(r#"
             // Save the x86 segmentation registers.
             subq $32, %rsp
             movq $0, (%rsp);
@@ -904,7 +904,7 @@ unsafe extern "C" fn alltraps() -> ! {
             cs_offset = const TRAPFRAME_CS_OFFSET,
             vector_offset = const TRAPFRAME_VECTOR_OFFSET,
             trap = sym trap,
-            options(att_syntax, noreturn));
+            options(att_syntax));
     }
 }
 
