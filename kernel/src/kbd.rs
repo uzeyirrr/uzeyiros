@@ -1,6 +1,7 @@
 use crate::console;
 use crate::xapic;
 use bitflags::bitflags;
+use core::cell::SyncUnsafeCell;
 
 pub const INTR: u32 = 1;
 
@@ -177,7 +178,10 @@ const CTL_MAP: [u8; 256] = [
 ];
 
 pub fn getb() -> Option<u8> {
-    static mut MODKEYS: Modifiers = Modifiers::NORMAL;
+    fn modkeys() -> &'static mut Modifiers {
+        static MODKEYS: SyncUnsafeCell<Modifiers> = SyncUnsafeCell::new(Modifiers::NORMAL);
+        unsafe { &mut *MODKEYS.get() }
+    }
     use crate::x86_64::inb;
     let status = Status::from_bits_truncate(unsafe { inb(STATUS_PORT) });
     if !status.contains(Status::DATA_AVAIL) {
@@ -186,40 +190,32 @@ pub fn getb() -> Option<u8> {
     let mut data = unsafe { inb(DATA_PORT) };
     if data == 0xE0 {
         // ESC key
-        unsafe {
-            MODKEYS.insert(Modifiers::E0ESC);
-        }
+        modkeys().insert(Modifiers::E0ESC);
         return None;
     } else if (data & 0b1000_0000) != 0 {
         // Key up event
-        data = if unsafe { MODKEYS.contains(Modifiers::E0ESC) } {
+        data = if modkeys().contains(Modifiers::E0ESC) {
             data
         } else {
             data & 0b0111_1111
         };
-        unsafe {
-            MODKEYS.remove(Modifiers::E0ESC | shift_code(data));
-        }
+        modkeys().remove(Modifiers::E0ESC | shift_code(data));
         return None;
-    } else if unsafe { MODKEYS.contains(Modifiers::E0ESC) } {
+    } else if modkeys().contains(Modifiers::E0ESC) {
         data |= 0b1000_0000;
-        unsafe {
-            MODKEYS.remove(Modifiers::E0ESC);
-        }
+        modkeys().remove(Modifiers::E0ESC);
     }
-    unsafe {
-        MODKEYS.insert(shift_code(data));
-        MODKEYS.toggle(toggle_code(data));
-    }
-    let map = if unsafe { MODKEYS.contains(Modifiers::CTL) } {
+    modkeys().insert(shift_code(data));
+    modkeys().toggle(toggle_code(data));
+    let map = if modkeys().contains(Modifiers::CTL) {
         &CTL_MAP
-    } else if unsafe { MODKEYS.contains(Modifiers::SHIFT) } {
+    } else if modkeys().contains(Modifiers::SHIFT) {
         &SHIFT_MAP
     } else {
         &NORMAL_MAP
     };
     let mut b = map[data as usize];
-    if unsafe { MODKEYS.contains(Modifiers::CAPSLOCK) } {
+    if modkeys().contains(Modifiers::CAPSLOCK) {
         if b.is_ascii_lowercase() {
             b.make_ascii_uppercase();
         } else if b.is_ascii_uppercase() {

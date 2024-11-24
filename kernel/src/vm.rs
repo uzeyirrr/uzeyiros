@@ -553,11 +553,9 @@ pub unsafe fn init(kpage_table: &mut PageTable) {
 }
 
 pub fn new_pgtbl() -> Result<PageTable> {
-    unsafe {
-        crate::KPGTBL
-            .dup_kern()
-            .ok_or("exec: cannot allocate new page table")
-    }
+    crate::kpgtbl()
+        .dup_kern()
+        .ok_or("exec: cannot allocate new page table")
 }
 
 pub unsafe fn switch(kpage_table: &PageTable) {

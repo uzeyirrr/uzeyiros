@@ -1,7 +1,5 @@
 #![feature(c_variadic)]
-#![feature(exposed_provenance)]
 #![feature(naked_functions)]
-#![feature(strict_provenance)]
 #![cfg_attr(not(any(test, clippy)), no_std)]
 #![forbid(unsafe_op_in_unsafe_fn)]
 

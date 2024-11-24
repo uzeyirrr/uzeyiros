@@ -3,13 +3,18 @@ use crate::fs;
 use crate::param;
 use crate::spinlock::SpinMutex as Mutex;
 use crate::volatile;
+use core::cell::SyncUnsafeCell;
 use core::ptr;
 use core::slice;
 use static_assertions::const_assert;
 
 static LOG_STATE: Mutex<LogState> = Mutex::new("log", LogState::new());
 //static LOG: RacyCell<Log> = RacyCell::new(Log::new());
-static mut LOG: Log = Log::new();
+fn log() -> &'static mut Log {
+    static LOG: SyncUnsafeCell<Log> = SyncUnsafeCell::new(Log::new());
+    let log = LOG.get();
+    unsafe { &mut *log }
+}
 
 /// Simple logging that allows concurrent FS system calls.
 ///
@@ -176,7 +181,7 @@ impl LogState {
 }
 
 pub mod op {
-    use super::{LOG, LOG_STATE};
+    use super::{log, LOG_STATE};
     use crate::param;
     use crate::proc::{self, myproc};
 
@@ -190,7 +195,7 @@ pub mod op {
                 continue;
             }
             let needed = (state.outstanding + 1) * param::MAXOPBLOCKS;
-            let len = unsafe { LOG.len() };
+            let len = log().len();
             if len + needed > param::LOGSIZE {
                 myproc().sleep(state.as_chan(), &LOG_STATE);
                 continue;
@@ -225,7 +230,7 @@ pub mod op {
     }
 
     fn commit() {
-        let log = unsafe { &mut *core::ptr::addr_of_mut!(LOG) };
+        let log = log();
         if !log.is_empty() {
             log.sync();
             log.write();
@@ -245,22 +250,20 @@ pub fn with_op<U, F: FnMut() -> U>(mut thunk: F) -> U {
 
 pub unsafe fn init(dev: u32, sb: &fs::Superblock) {
     fn recover() {
-        let log = unsafe { &mut *core::ptr::addr_of_mut!(LOG) };
+        let log = log();
         log.read();
         log.commit();
         log.clear();
         log.write();
     }
-    unsafe {
-        LOG.set_metadata(dev, sb.log_start, sb.nlog as usize);
-    }
+    log().set_metadata(dev, sb.log_start, sb.nlog as usize);
     recover();
 }
 
 pub fn write(bp: &bio::Buf) {
     assert!(bp.is_locked());
     let state = LOG_STATE.lock();
-    let log = unsafe { &mut *core::ptr::addr_of_mut!(LOG) };
+    let log = log();
     if log.is_full() {
         panic!("transaction too big");
     }

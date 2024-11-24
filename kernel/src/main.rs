@@ -1,10 +1,9 @@
 #![allow(clippy::upper_case_acronyms)]
 #![allow(internal_features)]
 #![feature(core_intrinsics)]
-#![feature(exposed_provenance)]
 #![feature(naked_functions)]
 #![feature(proc_macro_hygiene)]
-#![feature(strict_provenance)]
+#![feature(sync_unsafe_cell)]
 #![cfg_attr(test, allow(dead_code))]
 #![cfg_attr(not(any(test, clippy)), no_std)]
 #![cfg_attr(not(test), no_main)]
@@ -49,7 +48,6 @@ use crate::x86_64 as arch;
 use arch::pic as PIC;
 use arch::Page;
 use arch::CPU;
-use core::ptr;
 use core::result;
 use core::sync::atomic::{AtomicBool, Ordering};
 
@@ -76,7 +74,11 @@ unsafe impl FromZeros for u64 {}
 
 #[cfg(all(target_arch = "x86_64", target_os = "none"))]
 static mut PERCPU0: Page = Page::empty();
-static mut KPGTBL: PageTable = PageTable::empty();
+fn kpgtbl() -> &'static mut PageTable {
+    static mut KPGTBL: PageTable = PageTable::empty();
+    let kpgtbl = &raw mut KPGTBL;
+    unsafe { &mut *kpgtbl }
+}
 
 /// # Safety
 ///
@@ -85,7 +87,7 @@ static mut KPGTBL: PageTable = PageTable::empty();
 #[no_mangle]
 pub unsafe extern "C" fn main(boot_info: u64) {
     unsafe {
-        CPU::init(&mut *ptr::addr_of_mut!(PERCPU0), 0);
+        CPU::init(&mut *(&raw mut PERCPU0), 0);
         console::init();
         println!("rxv64...");
         PIC::init();
@@ -93,22 +95,22 @@ pub unsafe extern "C" fn main(boot_info: u64) {
         trap::init();
         kalloc::early_init(kmem::early_pages());
         kmem::early_init(boot_info);
-        vm::init(&mut *ptr::addr_of_mut!(KPGTBL));
-        KPGTBL.switch();
+        vm::init(kpgtbl());
+        kpgtbl().switch();
         acpi::init();
         ioapic::init(acpi::ioapics());
         xapic::init();
         kbd::init();
         uart::init();
         // Note: pci::init() calls sd::init.
-        pci::init(&mut *ptr::addr_of_mut!(KPGTBL));
+        pci::init(kpgtbl());
         bio::init();
         pipe::init();
         syscall::init();
         smp::init();
         smp::start_others(acpi::cpus());
         kmem::init();
-        proc::init(& *ptr::addr_of!(KPGTBL));
+        proc::init(kpgtbl());
     }
 
     let semaphore = AtomicBool::new(false);
@@ -123,7 +125,7 @@ pub unsafe extern "C" fn mpenter(percpu: &mut Page, id: u32, semaphore: &AtomicB
     unsafe {
         CPU::init(percpu, id);
         trap::init();
-        KPGTBL.switch();
+        kpgtbl().switch();
         xapic::init();
         syscall::init();
     }

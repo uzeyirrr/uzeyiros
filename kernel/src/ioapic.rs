@@ -19,6 +19,7 @@ use crate::param;
 use crate::volatile;
 use bitflags::bitflags;
 use core::ptr::null_mut;
+use core::sync::atomic::{AtomicPtr, AtomicU32, Ordering};
 
 #[repr(C)]
 struct IOAPIC {
@@ -44,19 +45,19 @@ enum IOAPICRegs {
     TABLE = 16,
 }
 
-static mut IOAPIC: *mut IOAPIC = null_mut();
-static mut MAXINTR: u32 = 0;
-static mut ID: u32 = 0;
+static IOAPIC: AtomicPtr<IOAPIC> = AtomicPtr::new(null_mut());
+static MAXINTR: AtomicU32 = AtomicU32::new(0);
+static ID: AtomicU32 = AtomicU32::new(0);
 
 pub unsafe fn init(ioapics: &[acpi::IOAPICT]) {
     assert!(!ioapics.is_empty());
-    unsafe {
-        assert_eq!(IOAPIC, null_mut());
-        IOAPIC = (param::KERNBASE + ioapics[0].phys_addr() as usize) as *mut IOAPIC;
-        MAXINTR = (read(IOAPICRegs::VER) >> 16) & 0xFF;
-        ID = read(IOAPICRegs::ID) >> 24;
-    }
-    for k in 0..=unsafe { MAXINTR } {
+    assert_eq!(IOAPIC.load(Ordering::Acquire), null_mut());
+    let ioapic = (param::KERNBASE + ioapics[0].phys_addr() as usize) as *mut IOAPIC;
+    IOAPIC.store(ioapic, Ordering::Release);
+    let maxintr = unsafe { read(IOAPICRegs::VER) >> 16 } & 0xFF;
+    MAXINTR.store(maxintr, Ordering::Release);
+    ID.store(unsafe { read(IOAPICRegs::ID) >> 24 }, Ordering::Release);
+    for k in 0..=maxintr {
         unsafe {
             write_table(k, IntrFlags::DISABLED, 32 + k, 0);
         }
@@ -69,29 +70,26 @@ pub unsafe fn enable(irq: u32, cpu: u32) {
     }
 }
 
+unsafe fn ioapic_mut() -> &'static mut IOAPIC {
+    let ioapic = IOAPIC.load(Ordering::Acquire);
+    assert_ne!(ioapic, null_mut());
+    unsafe { &mut *ioapic }
+}
+
 unsafe fn read(index: IOAPICRegs) -> u32 {
-    let ioapic = unsafe {
-        assert_ne!(IOAPIC, null_mut());
-        &mut *IOAPIC
-    };
+    let ioapic = unsafe { ioapic_mut() };
     volatile::write(&mut ioapic.reg, index as u32);
     volatile::read(&ioapic.value)
 }
 
 unsafe fn _write(index: IOAPICRegs, value: u32) {
-    let ioapic = unsafe {
-        assert_ne!(IOAPIC, null_mut());
-        &mut *IOAPIC
-    };
+    let ioapic = unsafe { ioapic_mut() };
     volatile::write(&mut ioapic.reg, index as u32);
     volatile::write(&mut ioapic.value, value);
 }
 
 unsafe fn write_table(offset: u32, flags: IntrFlags, irq: u32, cpu: u32) {
-    let ioapic = unsafe {
-        assert_ne!(IOAPIC, null_mut());
-        &mut *IOAPIC
-    };
+    let ioapic = unsafe { ioapic_mut() };
     let index = IOAPICRegs::TABLE as u32;
     volatile::write(&mut ioapic.reg, index + offset * 2);
     volatile::write(&mut ioapic.value, flags.bits() | irq);

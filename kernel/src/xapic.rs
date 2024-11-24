@@ -9,6 +9,7 @@ use crate::trap;
 use crate::volatile;
 use bitflags::bitflags;
 use core::ptr::null_mut;
+use core::sync::atomic::{AtomicPtr, Ordering};
 use core::time::Duration;
 
 enum XAPICRegs {
@@ -44,7 +45,7 @@ const SPURIOUS_VEC: u32 = trap::INTR0 + 31;
 
 type XAPICMMIO = [u32; SIZE];
 
-static mut XAPIC: *mut XAPICMMIO = null_mut();
+static XAPIC: AtomicPtr<XAPICMMIO> = AtomicPtr::new(null_mut());
 
 bitflags! {
     pub struct SVRFlags: u32 {
@@ -58,11 +59,12 @@ pub unsafe fn init() {
     unsafe {
         arch::wrmsr(MSR_APIC_BASE, arch::rdmsr(MSR_APIC_BASE) | XAPIC_MODE);
 
-        assert!((arch::mycpu_id() == 0 && XAPIC.is_null()) || !XAPIC.is_null());
+        let xptr = XAPIC.load(Ordering::Acquire);
+        assert!((arch::mycpu_id() == 0 && xptr.is_null()) || !xptr.is_null());
 
         const MMIO_MASK: u64 = !0xFFF;
         let xapic_ptr = param::KERNBASE + (arch::rdmsr(MSR_APIC_BASE) & MMIO_MASK) as usize;
-        XAPIC = xapic_ptr as *mut XAPICMMIO;
+        XAPIC.store(xapic_ptr as *mut XAPICMMIO, Ordering::Release);
         write(XAPICRegs::SVR, SVRFlags::ENABLE.bits() | SPURIOUS_VEC);
 
         write(XAPICRegs::TDCR, 0xb);
@@ -78,19 +80,25 @@ pub unsafe fn init() {
     }
 }
 
+fn xapic_ref() -> &'static XAPICMMIO {
+    let xapic = XAPIC.load(Ordering::Acquire);
+    assert_ne!(xapic, null_mut());
+    unsafe { &*xapic }
+}
+
+fn xapic_mut() -> &'static mut XAPICMMIO {
+    let xapic = XAPIC.load(Ordering::Acquire);
+    assert_ne!(xapic, null_mut());
+    unsafe { &mut *xapic }
+}
+
 unsafe fn read(index: XAPICRegs) -> u32 {
-    let xapic = unsafe {
-        assert_ne!(XAPIC, null_mut());
-        &*XAPIC
-    };
+    let xapic = xapic_ref();
     volatile::read(&xapic[index as usize])
 }
 
 unsafe fn write(index: XAPICRegs, value: u32) {
-    let xapic = unsafe {
-        assert_ne!(XAPIC, null_mut());
-        &mut *XAPIC
-    };
+    let xapic = xapic_mut();
     volatile::write(&mut xapic[index as usize], value);
     volatile::read(&xapic[XAPICRegs::ID as usize]);
 }
@@ -106,7 +114,6 @@ unsafe fn wait_delivery() {
 
 pub unsafe fn eoi() {
     unsafe {
-        assert_ne!(XAPIC, null_mut());
         write(XAPICRegs::EOI, 0);
     }
 }

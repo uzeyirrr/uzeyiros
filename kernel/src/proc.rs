@@ -556,7 +556,7 @@ pub fn scheduler() {
             unsafe {
                 p.data.borrow().pgtbl.as_ref().unwrap().switch();
                 swtch(arch::mycpu_mut().mut_ptr_to_scheduler_ptr(), p.context());
-                crate::KPGTBL.switch();
+                crate::kpgtbl().switch();
             }
             arch::mycpu_mut().clear_proc();
         }

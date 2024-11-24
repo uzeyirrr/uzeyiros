@@ -8,6 +8,7 @@ use crate::uart;
 use crate::volatile;
 use crate::xapic;
 use crate::Result;
+use core::cell::SyncUnsafeCell;
 
 pub(crate) const INTR0: u32 = 32;
 const KBD_INTR: u32 = INTR0 + kbd::INTR;
@@ -110,16 +111,18 @@ pub extern "C" fn trap(vecnum: u32, frame: &mut arch::TrapFrame) {
     }
 }
 
-static mut IDT: arch::IDT = arch::IDT::empty();
+static IDT: SyncUnsafeCell<arch::IDT> = SyncUnsafeCell::new(arch::IDT::empty());
 
 pub unsafe fn vector_init() {
     unsafe {
-        IDT.init();
+        let idt = &mut *IDT.get();
+        idt.init();
     }
 }
 
 pub unsafe fn init() {
     unsafe {
-        IDT.load();
+        let idt = &mut *IDT.get();
+        idt.load();
     }
 }
