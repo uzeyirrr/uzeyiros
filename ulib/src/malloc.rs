@@ -99,7 +99,7 @@ fn more_units(nunits: usize) -> Option<&'static mut Header> {
 }
 
 fn safe_sbrk(nbytes: usize) -> Option<*mut u8> {
-    extern "C" {
+    unsafe extern "C" {
         fn sbrk(nbytes: isize) -> *mut u8;
     }
 

@@ -12,7 +12,7 @@ const VECTOR: u8 = 7;
 pub unsafe fn init() {
     use core::intrinsics::volatile_copy_memory;
 
-    extern "C" {
+    unsafe extern "C" {
         static apentry: [u8; 0];
         static eapentry: [u8; 0];
     }
@@ -44,7 +44,7 @@ unsafe fn start1(id: usize, apic_id: u32) {
             }
             arch::cpu_relax();
         }
-        return false;
+        false
     }
 
     const USEC: Duration = Duration::from_micros(1);

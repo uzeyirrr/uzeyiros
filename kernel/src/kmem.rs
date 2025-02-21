@@ -2,7 +2,7 @@ use crate::arch::{self, Page, PAGE_SIZE};
 use crate::param::KERNBASE;
 use core::slice;
 
-extern "C" {
+unsafe extern "C" {
     static etext: [u64; 0];
     static erodata: [u64; 0];
     //static mut edata: [u64; 0];

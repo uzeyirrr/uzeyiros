@@ -2,7 +2,7 @@
 // and call it via a stub.
 use core::ffi;
 
-extern "C" {
+unsafe extern "C" {
     fn write(fd: i32, p: *const u8, len: usize) -> isize;
 }
 

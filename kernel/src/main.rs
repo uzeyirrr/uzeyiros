@@ -84,7 +84,7 @@ fn kpgtbl() -> &'static mut PageTable {
 ///
 /// Starting an operating system is inherently unsafe.
 #[cfg(all(target_arch = "x86_64", target_os = "none"))]
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn main(boot_info: u64) {
     unsafe {
         CPU::init(&mut *(&raw mut PERCPU0), 0);
@@ -120,7 +120,7 @@ pub unsafe extern "C" fn main(boot_info: u64) {
 /// # Safety
 ///
 /// Starting a CPU is inherently unsafe.
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn mpenter(percpu: &mut Page, id: u32, semaphore: &AtomicBool) {
     unsafe {
         CPU::init(percpu, id);

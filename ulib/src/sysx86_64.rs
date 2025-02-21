@@ -12,7 +12,7 @@ mod syscalls {
     macro_rules! syscall {
         // , $( $a:ident : $at:ty),* => $name($($a:$at),*)
         ($name:ident, $num:expr, $rety:ty $(, $a:ident : $at:ty)*) => {
-            extern "C" {
+            unsafe extern "C" {
                 #[allow(dead_code)]
                 fn $name($($a : $at,)*) -> $rety;
             }

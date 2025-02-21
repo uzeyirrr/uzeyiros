@@ -11,6 +11,7 @@
 	"os": "none",
 	"executables": true,
 	"features": "-mmx,-sse,+soft-float",
+	"rustc-abi": "x86-softfloat",
 	"panic-strategy": "abort",
 	"pre-link-args": {
 		"ld.lld": [

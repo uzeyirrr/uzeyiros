@@ -22,7 +22,7 @@ unsafe fn cstr2slice<'a>(s: *const u8) -> &'a [u8] {
 
 /// # Safety
 /// C strings
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn strlcpy(dst: *mut u8, src: *const u8, size: usize) -> usize {
     fn inner(dst: &mut [u8], src: &[u8]) -> usize {
         let k = if src.len() < dst.len() {
@@ -41,7 +41,7 @@ pub unsafe extern "C" fn strlcpy(dst: *mut u8, src: *const u8, size: usize) -> u
 
 /// # Safety
 /// C strings
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn strlen(s: *const u8) -> usize {
     let mut k = 0;
     while unsafe { *s.offset(k) } != 0 {
@@ -52,7 +52,7 @@ pub unsafe extern "C" fn strlen(s: *const u8) -> usize {
 
 /// # Safety
 /// C strings
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn strchr(s: *const u8, c: u8) -> *const u8 {
     fn inner(s: &[u8], c: u8) -> Option<&u8> {
         let off = s.iter().position(|ch| *ch == c)?;
@@ -66,7 +66,7 @@ pub unsafe extern "C" fn strchr(s: *const u8, c: u8) -> *const u8 {
 
 /// # Safety
 /// C strings
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn strcmp(p: *const u8, q: *const u8) -> i32 {
     fn inner(p: &[u8], q: &[u8]) -> i32 {
         let len = cmp::max(p.len(), q.len());
@@ -84,7 +84,7 @@ pub unsafe extern "C" fn strcmp(p: *const u8, q: *const u8) -> i32 {
 
 /// # Safety
 /// C strings
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn atoi(s: *const u8) -> i32 {
     fn inner(s: &[u8]) -> i32 {
         s.iter()
@@ -96,7 +96,7 @@ pub unsafe extern "C" fn atoi(s: *const u8) -> i32 {
 
 /// # Safety
 /// C pointers
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn memmove(dst: *mut u8, src: *const u8, len: usize) -> *mut u8 {
     //ptr::copy(src, dst, len);
     //dst
@@ -105,7 +105,7 @@ pub unsafe extern "C" fn memmove(dst: *mut u8, src: *const u8, len: usize) -> *m
 
 /// # Safety
 /// C pointers
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn memcpy(dst: *mut u8, src: *const u8, len: usize) -> *mut u8 {
     for k in 0..len {
         unsafe {
@@ -117,7 +117,7 @@ pub unsafe extern "C" fn memcpy(dst: *mut u8, src: *const u8, len: usize) -> *mu
 
 /// # Safety
 /// C pointers
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn memcmp(a: *const u8, b: *const u8, n: usize) -> i32 {
     for k in 0..n {
         unsafe {
@@ -136,7 +136,7 @@ pub unsafe extern "C" fn memcmp(a: *const u8, b: *const u8, n: usize) -> i32 {
 
 /// # Safety
 /// C pointers
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn memset(dst: *mut u8, c: u8, n: usize) -> *mut u8 {
     for k in 0..n {
         unsafe {
@@ -148,7 +148,7 @@ pub unsafe extern "C" fn memset(dst: *mut u8, c: u8, n: usize) -> *mut u8 {
 
 /// # Safety
 /// C strings and variadic args.
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn rvdprintf(fd: i32, fmt: *const u8, ap: ffi::VaList) {
     rvdprintf::rvdprintf(fd, unsafe { cstr2slice(fmt) }, ap);
 }
@@ -156,7 +156,7 @@ pub unsafe extern "C" fn rvdprintf(fd: i32, fmt: *const u8, ap: ffi::VaList) {
 /// # Safety
 /// C interface
 #[cfg(not(any(test, clippy)))]
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn malloc(n: usize) -> *mut u8 {
     unsafe { malloc::krmalloc(n) }
 }
@@ -164,7 +164,7 @@ pub unsafe extern "C" fn malloc(n: usize) -> *mut u8 {
 /// # Safety
 /// C interface
 #[cfg(not(any(test, clippy)))]
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn free(p: *mut u8) {
     unsafe {
         malloc::krfree(p);

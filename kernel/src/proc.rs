@@ -542,7 +542,7 @@ pub fn die_if_dead() {
     }
 }
 
-extern "C" {
+unsafe extern "C" {
     fn swtch(from: *mut *mut arch::Context, to: &arch::Context);
 }
 

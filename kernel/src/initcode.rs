@@ -32,7 +32,7 @@ start_init_len: .quad . - start_init
     options(att_syntax)
 );
 
-extern "C" {
+unsafe extern "C" {
     fn start_init() -> !;
     static start_init_len: usize;
 }

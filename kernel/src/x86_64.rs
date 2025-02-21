@@ -776,7 +776,7 @@ const TRAPFRAME_CS_OFFSET: usize = 0xB0;
 macro_rules! gen_stub {
     ($name:ident, $vecnum:expr) => {
         #[allow(dead_code)]
-        #[link_section = ".trap"]
+        #[unsafe(link_section = ".trap")]
         #[naked]
         unsafe extern "C" fn $name() -> ! {
             unsafe {
@@ -788,7 +788,7 @@ macro_rules! gen_stub {
     };
     ($name:ident, $vecnum:expr, err) => {
         #[allow(dead_code)]
-        #[link_section = ".trap"]
+        #[unsafe(link_section = ".trap")]
         #[naked]
         unsafe extern "C" fn $name() -> ! {
             unsafe {
@@ -834,7 +834,7 @@ seq!(N in 0..=255 {
     gen_vector_stub!(vector~N, N);
 });
 
-#[link_section = ".trap"]
+#[unsafe(link_section = ".trap")]
 #[naked]
 unsafe extern "C" fn alltraps() -> ! {
     unsafe {
