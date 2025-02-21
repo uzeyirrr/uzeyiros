@@ -1,10 +1,10 @@
+use crate::Result;
 use crate::arch;
 use crate::arch::Page;
 use crate::kalloc;
 use crate::kmem;
 use crate::param;
 use crate::volatile;
-use crate::Result;
 use bitflags::bitflags;
 use core::cmp;
 use core::fmt;

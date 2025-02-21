@@ -1,5 +1,5 @@
 use crate::arch;
-use arch::{cpu_relax, mycpu_id, xswap, CPU};
+use arch::{CPU, cpu_relax, mycpu_id, xswap};
 use core::cell::UnsafeCell;
 use core::ops::{Deref, DerefMut};
 

@@ -1,7 +1,7 @@
+use crate::Result;
 use crate::console;
 use crate::param;
 use crate::spinlock::SpinMutex as Mutex;
-use crate::Result;
 use core::cell::Cell;
 use core::sync::atomic::{AtomicBool, Ordering};
 use syslib::stat::Stat;

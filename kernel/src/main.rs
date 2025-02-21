@@ -44,10 +44,10 @@ use std::{print, println};
 
 use crate::vm::PageTable;
 use crate::x86_64 as arch;
+use arch::CPU;
+use arch::Page;
 #[cfg(all(target_arch = "x86_64", target_os = "none"))]
 use arch::pic as PIC;
-use arch::Page;
-use arch::CPU;
 use core::result;
 use core::sync::atomic::{AtomicBool, Ordering};
 

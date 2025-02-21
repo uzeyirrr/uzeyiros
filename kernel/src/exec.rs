@@ -1,10 +1,10 @@
+use crate::Result;
 use crate::arch;
 use crate::fs;
 use crate::fslog;
 use crate::param;
 use crate::proc;
 use crate::vm;
-use crate::Result;
 use core::cmp;
 use core::mem;
 use core::slice;

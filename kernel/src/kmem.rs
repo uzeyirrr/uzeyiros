@@ -1,4 +1,4 @@
-use crate::arch::{self, Page, PAGE_SIZE};
+use crate::arch::{self, PAGE_SIZE, Page};
 use crate::param::KERNBASE;
 use core::slice;
 

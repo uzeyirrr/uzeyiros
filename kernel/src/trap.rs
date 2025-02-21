@@ -1,3 +1,4 @@
+use crate::Result;
 use crate::arch;
 use crate::kbd;
 use crate::println;
@@ -7,7 +8,6 @@ use crate::spinlock::SpinMutex as Mutex;
 use crate::uart;
 use crate::volatile;
 use crate::xapic;
-use crate::Result;
 use core::cell::SyncUnsafeCell;
 
 pub(crate) const INTR0: u32 = 32;

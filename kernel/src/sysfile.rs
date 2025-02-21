@@ -1,3 +1,4 @@
+use crate::Result;
 use crate::exec;
 use crate::file;
 use crate::fs;
@@ -5,7 +6,6 @@ use crate::fslog;
 use crate::param;
 use crate::pipe;
 use crate::proc::Proc;
-use crate::Result;
 use core::mem;
 use core::ptr;
 use syslib::stat::{FileType, Stat};

@@ -1,9 +1,9 @@
+use crate::Result;
 use crate::cga::Cga;
 use crate::file::{self, File};
 use crate::proc;
 use crate::spinlock::SpinMutex as Mutex;
 use crate::uart::Uart;
-use crate::Result;
 use core::fmt;
 use syslib::stat::{FileType, Stat};
 

@@ -1,3 +1,4 @@
+use crate::Result;
 use crate::arch;
 use crate::file;
 use crate::fs;
@@ -6,11 +7,10 @@ use crate::kalloc;
 use crate::kmem;
 use crate::param;
 use crate::param::{USEREND, USERSTACK};
-use crate::spinlock::{without_intrs, SpinMutex as Mutex};
+use crate::spinlock::{SpinMutex as Mutex, without_intrs};
 use crate::syscall;
 use crate::vm;
 use crate::volatile;
-use crate::Result;
 use core::cell::{Cell, RefCell};
 use core::cmp;
 use core::fmt;
@@ -496,11 +496,7 @@ impl Proc {
 
     pub fn get_fd(&self, fd: usize) -> Option<&file::File> {
         let files = self.files.borrow();
-        if fd >= files.len() {
-            None
-        } else {
-            files[fd]
-        }
+        if fd >= files.len() { None } else { files[fd] }
     }
 
     pub fn alloc_fd(&self, file: &'static file::File) -> Option<usize> {

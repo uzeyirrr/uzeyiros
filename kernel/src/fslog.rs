@@ -181,7 +181,7 @@ impl LogState {
 }
 
 pub mod op {
-    use super::{log, LOG_STATE};
+    use super::{LOG_STATE, log};
     use crate::param;
     use crate::proc::{self, myproc};
 

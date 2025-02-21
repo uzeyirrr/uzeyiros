@@ -1,3 +1,4 @@
+use crate::Result;
 use crate::arch;
 use crate::bio;
 use crate::file::{self, File};
@@ -7,7 +8,6 @@ use crate::proc;
 use crate::sleeplock::Sleeplock;
 use crate::spinlock::SpinMutex as Mutex;
 use crate::volatile;
-use crate::Result;
 use core::assert_eq;
 use core::cell::{Cell, RefCell};
 use core::cmp;

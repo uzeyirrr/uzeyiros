@@ -1,10 +1,10 @@
+use crate::Result;
 use crate::arch::{self, Page};
 use crate::file::{self, Like};
 use crate::kalloc;
 use crate::proc::{self, myproc};
 use crate::spinlock::SpinMutex as Mutex;
 use crate::volatile;
-use crate::Result;
 use core::mem;
 use core::ptr;
 use core::sync::atomic::{AtomicBool, Ordering};

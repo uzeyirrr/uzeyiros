@@ -1,6 +1,6 @@
 use core::ptr;
 
-use crate::arch::{Page, PAGE_SIZE};
+use crate::arch::{PAGE_SIZE, Page};
 use crate::spinlock::SpinMutex as Mutex;
 
 static FREE_LIST: Mutex<FreeList> = Mutex::new("kmem", FreeList { next: None });

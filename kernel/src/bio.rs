@@ -1,10 +1,10 @@
+use crate::Result;
 use crate::arch;
 use crate::kalloc;
 use crate::param;
 use crate::sd;
 use crate::sleeplock::Sleeplock;
 use crate::spinlock::SpinMutex as Mutex;
-use crate::Result;
 use bitflags::bitflags;
 use core::cell::{Cell, RefCell};
 use core::ptr::null_mut;

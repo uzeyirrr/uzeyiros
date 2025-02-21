@@ -13,10 +13,7 @@ struct Header {
 
 impl Header {
     pub fn new(nunits: usize, next: *mut Header) -> Header {
-        Header {
-            next,
-            nunits,
-        }
+        Header { next, nunits }
     }
 
     pub fn end(&mut self) -> usize {
@@ -69,7 +66,10 @@ fn inner_malloc(free_list: &mut Option<*mut Header>, n: usize) -> Option<*mut He
                     mp.nunits -= nunits;
                     let p = unsafe { (mp as *mut Header).add(mp.nunits) };
                     unsafe {
-                        ptr::write(ptr::without_provenance_mut(p.addr()), Header::new(nunits, mp.next));
+                        ptr::write(
+                            ptr::without_provenance_mut(p.addr()),
+                            Header::new(nunits, mp.next),
+                        );
                     }
                     p
                 };
@@ -104,20 +104,14 @@ fn safe_sbrk(nbytes: usize) -> Option<*mut u8> {
     }
 
     let p = unsafe { sbrk(nbytes as isize) };
-    if p.addr() == !0 {
-        None
-    } else {
-        Some(p)
-    }
+    if p.addr() == !0 { None } else { Some(p) }
 }
 
 pub unsafe extern "C" fn krfree(p: *mut u8) {
     fn ptr2tag(p: *mut u8) -> &'static mut Header {
         assert_eq!(p.addr() % mem::align_of::<Header>(), 0);
         let hp = p.addr();
-        unsafe {
-            &mut *(ptr::without_provenance_mut::<Header>(hp).sub(1))
-        }
+        unsafe { &mut *(ptr::without_provenance_mut::<Header>(hp).sub(1)) }
     }
     if p.eq(&ptr::null_mut()) {
         return;

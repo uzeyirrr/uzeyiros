@@ -1,16 +1,16 @@
+use crate::FromZeros;
 use crate::kmem;
 use crate::proc;
 use crate::spinlock::without_intrs;
 use crate::trap::trap;
 use crate::volatile;
-use crate::FromZeros;
 use bitflags::bitflags;
 use core::arch::{asm, naked_asm};
 use core::fmt;
 use core::ptr;
 use core::time;
 use seq_macro::seq;
-use zerocopy::{FromBytes};
+use zerocopy::FromBytes;
 
 #[cfg(all(target_arch = "x86_64", target_os = "none"))]
 mod asm {
@@ -78,7 +78,7 @@ pub const fn page_round_up(value: usize) -> usize {
 
 #[cfg(test)]
 mod page_round_tests {
-    use super::{page_round_down, page_round_up, PAGE_SIZE};
+    use super::{PAGE_SIZE, page_round_down, page_round_up};
     #[test]
     fn test_page_round_down() {
         assert_eq!(page_round_down(PAGE_SIZE), PAGE_SIZE);
