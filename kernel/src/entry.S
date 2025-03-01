@@ -27,10 +27,9 @@
 .set CR0_PG,		1 << 31
 .set CR0_BOOT64,	CR0_PE + CR0_WP + CR0_PG
 
-.set CR4_PSE,		1 << 4
 .set CR4_PAE,		1 << 5
 .set CR4_FSGSBASE,	1 << 16
-.set CR4_BOOT,		CR4_PAE + CR4_PSE + CR4_FSGSBASE
+.set CR4_BOOT,		CR4_PAE + CR4_FSGSBASE
 
 .set IA32_MSR_EFER,	0xc0000080
 .set EFER_SCE,		1 << 0
