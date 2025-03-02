@@ -62,7 +62,7 @@
 .set MULTIBOOT1_FLAGS,	1 << 1	// Provide memory map.
 
 .section .text.boot
-.align 8
+.balign 8
 .globl multiboot1_header
 multiboot1_header:
 .int	MULTIBOOT1_MAGIC
@@ -119,7 +119,7 @@ entry64:
 	hlt
 	jmp	1b
 
-.align 4096
+.balign 4096
 .rodata
 
 .set APENTRY,		0x7000
@@ -136,7 +136,7 @@ entry64:
 // is running in Rust code on a real page table.
 .globl apentry, eapentry
 .code16
-.align 4096
+.balign 4096
 apentry:
 	cli
 	cld
@@ -206,7 +206,7 @@ apentry64:
 	hlt
 	jmp	1b
 
-.align 16
+.balign 16
 
 gdt:
 // 0: Null segment
@@ -227,7 +227,7 @@ apgdtdesc:
 
 eapentry:
 
-.align 4096
+.balign 4096
 .globl entrypgtbl
 entrypgtbl:
 	.quad (entrypgtbl3 - KERNBASE) + (1<<1) + (1<<0)
@@ -235,12 +235,12 @@ entrypgtbl:
 	.quad (entrypgtbl3 - KERNBASE) + (1<<1) + (1<<0)
 	.space (4096/2) - (1*8)
 
-.align 4096
+.balign 4096
 entrypgtbl3:
 	.quad (entrypgtbl2 - KERNBASE) + (1<<1) + (1<<0)
 	.space 4096 - 1*8
 
-.align 4096
+.balign 4096
 entrypgtbl2:
 	.quad (0<<20) + (0<<63) + (1<<7) + (1<<1) + (1<<0)
 	.quad (2<<20) + (1<<63) + (1<<7) + (1<<1) + (1<<0)
@@ -308,14 +308,14 @@ entrypgtbl2:
 	.quad (126<<20) + (1<<63) + (1<<7) + (1<<1) + (1<<0)
 	.space 4096 - 64*8
 
-.align 16
+.balign 16
 .skip 6
 entrygdtdesc:
 .word	egdt - gdt - 1
 .long	(gdt - KERNBASE)
 
 .bss
-.align 4096
+.balign 4096
 
 // Stack.
 .globl bootstack
