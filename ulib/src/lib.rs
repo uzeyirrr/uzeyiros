@@ -1,5 +1,4 @@
 #![feature(c_variadic)]
-#![feature(naked_functions)]
 #![cfg_attr(not(any(test, clippy)), no_std)]
 #![forbid(unsafe_op_in_unsafe_fn)]
 

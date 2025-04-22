@@ -60,156 +60,153 @@ extern "C" fn syscall(a0: usize, a1: usize, a2: usize, num: usize) -> i64 {
     r
 }
 
-#[naked]
+#[unsafe(naked)]
 unsafe extern "C" fn enter() -> ! {
     // Switch user and kernel GSBASE
-    unsafe {
-        naked_asm!(r#"
-            swapgs
+    naked_asm!(r#"
+        swapgs
 
-            // Stash the user stack pointer and set the kernel
-            // stack pointer.  Use %r8 as a scratch register,
-            // since it is callee-save and we clear on return
-            // anyway.
-            movq %rsp, %r8
-            movq %gs:16, %rsp
+        // Stash the user stack pointer and set the kernel
+        // stack pointer.  Use %r8 as a scratch register,
+        // since it is callee-save and we clear on return
+        // anyway.
+        movq %rsp, %r8
+        movq %gs:16, %rsp
 
-            // We construct a trap frame on the stack, but many of the
-            // fields therein are not used by the system call machinery.
-            // We push them anyway.
-            //
-            // Save callee-saved registers, flags and the stack pointer.
-            // This is a `struct Context` at the top of the kernel stack.
-            // If we know that we came into the kernel via a system call,
-            // we can use this to retrieve the Context structure.  We use
-            // this in e.g. fork() to copy state from the parent to the child.
-            pushq $0    // %ss
-            pushq %r8   // user stack pointer
-            pushq %r11  // user %rflags
+        // We construct a trap frame on the stack, but many of the
+        // fields therein are not used by the system call machinery.
+        // We push them anyway.
+        //
+        // Save callee-saved registers, flags and the stack pointer.
+        // This is a `struct Context` at the top of the kernel stack.
+        // If we know that we came into the kernel via a system call,
+        // we can use this to retrieve the Context structure.  We use
+        // this in e.g. fork() to copy state from the parent to the child.
+        pushq $0    // %ss
+        pushq %r8   // user stack pointer
+        pushq %r11  // user %rflags
 
-            movq %cs, %r11
-            pushq %r11  // user %cs
+        movq %cs, %r11
+        pushq %r11  // user %cs
 
-            pushq %rcx  // user %rip
+        pushq %rcx  // user %rip
 
-            pushq $0    // error
-            pushq $0    // vector
+        pushq $0    // error
+        pushq $0    // vector
 
-            pushq $0    // user %gs
-            movw %gs, (%rsp)
-            pushq $0    // user %fs
-            movw %fs, (%rsp)
-            pushq $0    // user %es
-            movw %es, (%rsp)
-            pushq $0    // user %ds
-            movw %ds, (%rsp)
+        pushq $0    // user %gs
+        movw %gs, (%rsp)
+        pushq $0    // user %fs
+        movw %fs, (%rsp)
+        pushq $0    // user %es
+        movw %es, (%rsp)
+        pushq $0    // user %ds
+        movw %ds, (%rsp)
 
-            pushq %r15
-            pushq %r14
-            pushq %r13
-            pushq %r12
-            pushq $0    // %r11 was trashed
-            pushq $0    // %10 is caller-save
-            pushq $0    // %r9 is caller-save
-            pushq $0    // %r8 is caller-save (and used as scratch)
-            pushq %rbp
-            pushq $0    // %rdi is caller-save
-            pushq $0    // %rsi is caller-save
-            pushq $0    // %rdx is caller-save
-            pushq $0    // %rcx was trashed
-            pushq %rbx
-            pushq %rax
+        pushq %r15
+        pushq %r14
+        pushq %r13
+        pushq %r12
+        pushq $0    // %r11 was trashed
+        pushq $0    // %10 is caller-save
+        pushq $0    // %r9 is caller-save
+        pushq $0    // %r8 is caller-save (and used as scratch)
+        pushq %rbp
+        pushq $0    // %rdi is caller-save
+        pushq $0    // %rsi is caller-save
+        pushq $0    // %rdx is caller-save
+        pushq $0    // %rcx was trashed
+        pushq %rbx
+        pushq %rax
 
-            // Push a dummy word to align the stack.
-            pushq $0
+        // Push a dummy word to align the stack.
+        pushq $0
 
-            // Set up a call frame so that we can get a back trace
-            // from here, possibly into user code.
-            pushq %rcx
-            movq %r11, %rbp
+        // Set up a call frame so that we can get a back trace
+        // from here, possibly into user code.
+        pushq %rcx
+        movq %r11, %rbp
 
-            // System call number is 4th argument to `syscall` function.
-            movq %rax, %rcx
+        // System call number is 4th argument to `syscall` function.
+        movq %rax, %rcx
 
-            // Call the handler in Rust.
-            // XXX: Could we `sti` here?
-            callq {syscall}
+        // Call the handler in Rust.
+        // XXX: Could we `sti` here?
+        callq {syscall}
 
-            // Pop stack frame and dummy word.
-            addq $(8 * 2), %rsp
-            jmp {syscallret}
-            "#,
-            syscall = sym syscall,
-            syscallret = sym syscallret,
-            options(att_syntax)
-        );
-    }
+        // Pop stack frame and dummy word.
+        addq $(8 * 2), %rsp
+        jmp {syscallret}
+        "#,
+        syscall = sym syscall,
+        syscallret = sym syscallret,
+        options(att_syntax)
+    );
 }
 
-#[naked]
+#[unsafe(naked)]
 pub unsafe extern "C" fn syscallret() {
-    unsafe {
-        naked_asm!(
-            r#"
-            cli
-            // Skip %rax. It is the return value from the system call.
-            addq $8, %rsp
 
-            popq %rbx
-            // skip %rcx; it is handled specially.
-            addq $8, %rsp
-            popq %rdx
-            popq %rsi
-            popq %rdi
-            popq %rbp
-            popq %r8
-            popq %r9
-            popq %r10
-            popq %r11
-            popq %r12
-            popq %r13
-            popq %r14
-            popq %r15
+    naked_asm!(
+        r#"
+        cli
+        // Skip %rax. It is the return value from the system call.
+        addq $8, %rsp
 
-            // Restore user segmentation registers.
-            movw (%rsp), %ds
-            movw 8(%rsp), %es
-            movw 16(%rsp), %fs
-            // %gs is specially restored by `swapgs`, below.
-            addq $(8 * 4), %rsp
+        popq %rbx
+        // skip %rcx; it is handled specially.
+        addq $8, %rsp
+        popq %rdx
+        popq %rsi
+        popq %rdi
+        popq %rbp
+        popq %r8
+        popq %r9
+        popq %r10
+        popq %r11
+        popq %r12
+        popq %r13
+        popq %r14
+        popq %r15
 
-            // Skip vector and error.
-            addq $(8 * 2), %rsp
+        // Restore user segmentation registers.
+        movw (%rsp), %ds
+        movw 8(%rsp), %es
+        movw 16(%rsp), %fs
+        // %gs is specially restored by `swapgs`, below.
+        addq $(8 * 4), %rsp
 
-            // user %rip goes into %rcx
-            popq %rcx
+        // Skip vector and error.
+        addq $(8 * 2), %rsp
 
-            // skip %cs
-            addq $8, %rsp
+        // user %rip goes into %rcx
+        popq %rcx
 
-            // user flags go in %r11
-            popq %r11
+        // skip %cs
+        addq $8, %rsp
 
-            // copy user stack pointer into %r8
-            popq %r8
+        // user flags go in %r11
+        popq %r11
 
-            // Skip %ss
-            addq $8, %rsp
+        // copy user stack pointer into %r8
+        popq %r8
 
-            // Save kernel stack pointer in per-CPU structure.
-            movq %rsp, %gs:16
+        // Skip %ss
+        addq $8, %rsp
 
-            // Restore user stack pointer.
-            movq %r8, %rsp
-            xorq %r8, %r8
+        // Save kernel stack pointer in per-CPU structure.
+        movq %rsp, %gs:16
 
-            // Switch kernel, user GSBASE
-            swapgs
+        // Restore user stack pointer.
+        movq %r8, %rsp
+        xorq %r8, %r8
 
-            // Return from system call
-            sysretq
-            "#,
-            options(att_syntax)
-        );
-    }
+        // Switch kernel, user GSBASE
+        swapgs
+
+        // Return from system call
+        sysretq
+        "#,
+        options(att_syntax)
+    );
 }

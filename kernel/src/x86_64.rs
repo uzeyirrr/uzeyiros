@@ -777,25 +777,21 @@ macro_rules! gen_stub {
     ($name:ident, $vecnum:expr) => {
         #[allow(dead_code)]
         #[unsafe(link_section = ".trap")]
-        #[naked]
+        #[unsafe(naked)]
         unsafe extern "C" fn $name() -> ! {
-            unsafe {
-                naked_asm!("pushq $0; pushq ${}; jmp {}",
-                    const $vecnum, sym alltraps,
-                    options(att_syntax));
-            }
+            naked_asm!("pushq $0; pushq ${}; jmp {}",
+                const $vecnum, sym alltraps,
+                options(att_syntax));
         }
     };
     ($name:ident, $vecnum:expr, err) => {
         #[allow(dead_code)]
         #[unsafe(link_section = ".trap")]
-        #[naked]
+        #[unsafe(naked)]
         unsafe extern "C" fn $name() -> ! {
-            unsafe {
-                naked_asm!("pushq ${}; jmp {}",
-                    const $vecnum, sym alltraps,
-                    options(att_syntax));
-            }
+            naked_asm!("pushq ${}; jmp {}",
+                const $vecnum, sym alltraps,
+                options(att_syntax));
         }
     };
 }
@@ -835,77 +831,75 @@ seq!(N in 0..=255 {
 });
 
 #[unsafe(link_section = ".trap")]
-#[naked]
+#[unsafe(naked)]
 unsafe extern "C" fn alltraps() -> ! {
-    unsafe {
-        naked_asm!(r#"
-            // Save the x86 segmentation registers.
-            subq $32, %rsp
-            movq $0, (%rsp);
-            movw %ds, (%rsp);
-            movq $0, 8(%rsp);
-            movw %es, 8(%rsp);
-            movq $0, 16(%rsp);
-            movw %fs, 16(%rsp);
-            movq $0, 24(%rsp);
-            movw %gs, 24(%rsp);
-            pushq %r15;
-            pushq %r14;
-            pushq %r13;
-            pushq %r12;
-            pushq %r11;
-            pushq %r10;
-            pushq %r9;
-            pushq %r8;
-            pushq %rbp;
-            pushq %rdi;
-            pushq %rsi;
-            pushq %rdx;
-            pushq %rcx;
-            pushq %rbx;
-            pushq %rax;
-            cmpq ${ktext_sel}, {cs_offset}(%rsp);
-            je 1f;
-            swapgs;
-            1: movq {vector_offset}(%rsp), %rdi;
-            movq %rsp, %rsi;
-            callq {trap};
-            cmpq ${ktext_sel}, {cs_offset}(%rsp);
-            je 1f;
-            swapgs;
-            1: popq %rax;
-            popq %rbx;
-            popq %rcx;
-            popq %rdx;
-            popq %rsi;
-            popq %rdi;
-            popq %rbp;
-            popq %r8;
-            popq %r9;
-            popq %r10;
-            popq %r11;
-            popq %r12;
-            popq %r13;
-            popq %r14;
-            popq %r15;
-            // If necessary, %gs is restored via swapgs above.
-            // %fs is special.  We ought to save it and restore
-            // it, should userspace ever use green threads.
-            //movw 24(%rsp), %gs;
-            //movw 16(%rsp), %fs;
-            movw 8(%rsp), %es;
-            movw (%rsp), %ds;
-            addq $32, %rsp;
-            // Pop alignment word and error.
-            addq $16, %rsp;
-            iretq
-            "#,
-            ktext_sel = const segment::KTEXT_SEL,
-            cs_offset = const TRAPFRAME_CS_OFFSET,
-            vector_offset = const TRAPFRAME_VECTOR_OFFSET,
-            trap = sym trap,
-            options(att_syntax));
-    }
+    naked_asm!(r#"
+        // Save the x86 segmentation registers.
+        subq $32, %rsp
+        movq $0, (%rsp);
+        movw %ds, (%rsp);
+        movq $0, 8(%rsp);
+        movw %es, 8(%rsp);
+        movq $0, 16(%rsp);
+        movw %fs, 16(%rsp);
+        movq $0, 24(%rsp);
+        movw %gs, 24(%rsp);
+        pushq %r15;
+        pushq %r14;
+        pushq %r13;
+        pushq %r12;
+        pushq %r11;
+        pushq %r10;
+        pushq %r9;
+        pushq %r8;
+        pushq %rbp;
+        pushq %rdi;
+        pushq %rsi;
+        pushq %rdx;
+        pushq %rcx;
+        pushq %rbx;
+        pushq %rax;
+        cmpq ${ktext_sel}, {cs_offset}(%rsp);
+        je 1f;
+        swapgs;
+        1: movq {vector_offset}(%rsp), %rdi;
+        movq %rsp, %rsi;
+        callq {trap};
+        cmpq ${ktext_sel}, {cs_offset}(%rsp);
+        je 1f;
+        swapgs;
+        1: popq %rax;
+        popq %rbx;
+        popq %rcx;
+        popq %rdx;
+        popq %rsi;
+        popq %rdi;
+        popq %rbp;
+        popq %r8;
+        popq %r9;
+        popq %r10;
+        popq %r11;
+        popq %r12;
+        popq %r13;
+        popq %r14;
+        popq %r15;
+        // If necessary, %gs is restored via swapgs above.
+        // %fs is special.  We ought to save it and restore
+        // it, should userspace ever use green threads.
+        //movw 24(%rsp), %gs;
+        //movw 16(%rsp), %fs;
+        movw 8(%rsp), %es;
+        movw (%rsp), %ds;
+        addq $32, %rsp;
+        // Pop alignment word and error.
+        addq $16, %rsp;
+        iretq
+        "#,
+        ktext_sel = const segment::KTEXT_SEL,
+        cs_offset = const TRAPFRAME_CS_OFFSET,
+        vector_offset = const TRAPFRAME_VECTOR_OFFSET,
+        trap = sym trap,
+        options(att_syntax));
 }
 
 fn make_gate(thunk: unsafe extern "C" fn() -> !, vecnum: i32) -> segment::GateDesc {
