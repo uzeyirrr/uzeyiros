@@ -71,7 +71,7 @@ impl<T> SpinMutex<T> {
         unsafe { &mut *self.lock.get() }.release();
     }
 
-    pub fn lock(&self) -> MutexGuard<T> {
+    pub fn lock(&self) -> MutexGuard<'_, T> {
         self.acquire();
         MutexGuard {
             lock: &self.lock,

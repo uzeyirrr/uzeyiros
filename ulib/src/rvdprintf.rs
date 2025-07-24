@@ -39,7 +39,7 @@ enum Base {
 fn printv(fd: i32, c: u8, ap: &mut ffi::VaList) -> S {
     match c {
         b'%' => putc(fd, b'%'),
-        b'c' => putc(fd, unsafe { ap.arg::<u8>() }),
+        b'c' => putc(fd, unsafe { (ap.arg::<u32>() & 0xFF) as u8 }),
         b'd' => {
             let d = unsafe { ap.arg::<i32>() };
             if d < 0 {

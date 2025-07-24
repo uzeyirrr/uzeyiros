@@ -4,7 +4,7 @@
 //#![feature(proc_macro_hygiene)]
 #![feature(sync_unsafe_cell)]
 #![cfg_attr(test, allow(dead_code))]
-#![cfg_attr(not(any(test, clippy)), no_std)]
+#![cfg_attr(not(test), no_std)]
 #![cfg_attr(not(test), no_main)]
 #![forbid(unsafe_op_in_unsafe_fn)]
 
@@ -52,6 +52,10 @@ use core::sync::atomic::{AtomicBool, Ordering};
 
 type Result<T> = result::Result<T, &'static str>;
 
+/// Marks that a type can be safely cast from all zeroes.
+/// 
+/// # Safety
+/// All zero bit patterns must be valid for type T.
 pub unsafe trait FromZeros {}
 
 unsafe impl<T: ?Sized> FromZeros for *const T {}
@@ -141,7 +145,7 @@ fn signal_up(semaphore: &AtomicBool) {
     semaphore.store(true, Ordering::Release);
 }
 
-#[cfg(not(any(test, clippy)))]
+#[cfg(not(test))]
 mod runtime {
     use super::{AtomicBool, Ordering};
     use core::panic::PanicInfo;

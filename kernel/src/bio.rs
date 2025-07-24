@@ -18,7 +18,7 @@ bitflags! {
     }
 }
 
-const LIST_NONE: usize = usize::max_value();
+const LIST_NONE: usize = usize::MAX;
 
 struct BCache {
     head: usize,

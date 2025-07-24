@@ -1,5 +1,5 @@
 #![feature(c_variadic)]
-#![cfg_attr(not(any(test, clippy)), no_std)]
+#![cfg_attr(not(test), no_std)]
 #![forbid(unsafe_op_in_unsafe_fn)]
 
 use core::cmp;
@@ -170,7 +170,7 @@ pub unsafe extern "C" fn free(p: *mut u8) {
     }
 }
 
-#[cfg(not(any(test, clippy)))]
+#[cfg(not(test))]
 #[panic_handler]
 pub fn panic(_info: &core::panic::PanicInfo) -> ! {
     #[allow(clippy::empty_loop)]

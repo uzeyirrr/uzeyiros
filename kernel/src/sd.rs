@@ -362,7 +362,7 @@ impl CmdHeader {
     }
 
     fn set_cfl(&mut self, nu32s: usize) {
-        assert!(2 <= nu32s && nu32s <= 16);
+        assert!((2..=16).contains(&nu32s));
         self.pwa_cfl |= nu32s as u8;
     }
 
@@ -436,7 +436,7 @@ const_assert_eq!(mem::size_of::<Drive>(), 4096);
 impl Drive {
     fn new(port: &mut Port, ctlr: *mut GenericHostCtl) -> &'static mut Drive {
         let page: &mut crate::arch::Page = kalloc::alloc().expect("allocated a per-port ACHI page");
-        let drive = unsafe { mem::transmute::<_, &'static mut Drive>(page.as_ptr_mut()) };
+        let drive = unsafe { &mut *page.as_ptr_mut().cast::<Drive>() };
         let phys_tbl = kmem::ref_to_phys(&drive.cmd_table);
         volatile::write(
             &mut drive.cmd_header.cmd_tbl_base_hi,
@@ -485,7 +485,7 @@ impl Drive {
             .with_cflag()
             .with_count(1);
         self.setup_read_cmd(fis);
-        self.cmd_table.set_prd(&mut self.identity);
+        self.cmd_table.set_prd(&self.identity);
         self.issue_synch();
         self.cmd_header.clear();
         self.eoi();

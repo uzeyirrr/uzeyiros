@@ -566,7 +566,7 @@ pub unsafe fn switch(kpage_table: &PageTable) {
 
 pub fn free(pgtbl: &mut PageTable) {
     pgtbl.free_user_pages(0, param::USEREND);
-    let raw_ptr = (pgtbl.0 as *mut Table<Level4>).addr();
+    let raw_ptr = pgtbl.0.addr();
     kalloc::free(unsafe { &mut *(raw_ptr as *mut arch::Page) });
 }
 

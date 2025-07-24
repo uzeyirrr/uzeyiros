@@ -422,7 +422,7 @@ impl Proc {
         let (pid, status, zkstack, zpgtbl) = self.wait1()?;
         kalloc::free(zkstack); // XXX plock held?
         drop(zpgtbl); // XXX plock held?
-        if statusp != ptr::null_mut() {
+        if statusp.is_null() {
             unsafe {
                 ptr::write(statusp, status);
             }
@@ -531,10 +531,8 @@ pub fn yield_if_running() {
 }
 
 pub fn die_if_dead() {
-    if let Some(proc) = try_myproc() {
-        if proc.dead() {
-            proc.exit(1);
-        }
+    if let Some(proc) = try_myproc() && proc.dead() {
+        proc.exit(1);
     }
 }
 

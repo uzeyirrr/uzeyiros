@@ -80,6 +80,6 @@ unsafe fn start1(id: usize, apic_id: u32) {
         }
     }
     if !wait(&semaphore, 10 * MSEC) {
-        panic!("failed to start cpu{} (APIC {})", id, apic_id);
+        panic!("failed to start cpu{id} (APIC {apic_id})");
     }
 }

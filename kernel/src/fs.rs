@@ -365,7 +365,7 @@ impl Inode {
             1 => FileType::Dir,
             2 => FileType::File,
             3 => FileType::Dev,
-            _ => panic!("bad inode file type: {}", typ),
+            _ => panic!("bad inode file type: {typ}"),
         }
     }
 

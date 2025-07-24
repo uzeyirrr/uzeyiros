@@ -264,8 +264,6 @@ fn clippy(profile: Build) -> Result<()> {
     #[rustfmt::skip]
     cmd.arg("--workspace");
     cmd.arg("--exclude").arg("xtask");
-    cmd.arg("-Z").arg("build-std=core");
-    cmd.arg("--target").arg(format!("lib/{}.json", ktarget()));
     profile.add_build_arg(&mut cmd);
     let status = cmd.status()?;
     if !status.success() {

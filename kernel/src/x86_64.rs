@@ -133,7 +133,7 @@ pub struct Context {
 
 impl Context {
     pub unsafe fn set_return(&mut self, thunk: extern "C" fn() -> u32) {
-        self.rip = thunk as u64;
+        self.rip = thunk as usize as u64;
     }
 
     pub unsafe fn set_stack(&mut self, sp: u64) {
@@ -213,7 +213,7 @@ mod segment {
     }
 
     pub fn intr64(thunk: unsafe extern "C" fn() -> !, stack: IntrStack) -> GateDesc {
-        let offset = thunk as u64;
+        let offset = thunk as usize as u64;
         let lower0_offset = offset & 0x0000_FFFF;
         let lower0 = (u64::from(KTEXT_SEL) << 16) | lower0_offset;
         let lower1_offset = (offset & 0xFFFF_0000) << 32;
@@ -750,7 +750,7 @@ impl TrapFrame {
     }
 
     pub unsafe fn set_return(&mut self, thunk: extern "C" fn() -> u32) {
-        self.rip = thunk as u64;
+        self.rip = thunk as usize as u64;
     }
 
     pub unsafe fn set_stack(&mut self, sp: u64) {

@@ -299,7 +299,7 @@ impl<'a> Drop for Guard<'a> {
     fn drop(&mut self) {
         let active = self.0.load(Ordering::Relaxed);
         if active {
-            let _ = self.1.close();
+            self.1.close();
         }
     }
 }
