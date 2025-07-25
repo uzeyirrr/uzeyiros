@@ -43,7 +43,7 @@ iputtest(void)
     printf("unlink ../iputdir failed\n");
     exit(1);
   }
-  if(chdir("/") < 0){
+  if(chdir("/utrun") < 0){
     printf("chdir / failed\n");
     exit(1);
   }
@@ -133,7 +133,7 @@ opentest(void)
   int fd;
 
   printf("open test\n");
-  fd = open("echo", 0);
+  fd = open("/echo", 0);
   if(fd < 0){
     printf("open echo failed!\n");
     exit(1);
@@ -306,7 +306,7 @@ void
 exectest(void)
 {
   printf("exec test\n");
-  if(execvp("echo", echoargv) < 0){
+  if(execvp("/echo", echoargv) < 0){
     printf("exec echo failed\n");
     exit(1);
   }
@@ -970,7 +970,7 @@ subdir(void)
     exit(1);
   }
 
-  if(mkdir("/dd/dd", 0755) != 0){
+  if(mkdir("/utrun/dd/dd", 0755) != 0){
     printf("subdir mkdir dd/dd failed\n");
     exit(1);
   }
@@ -1017,7 +1017,7 @@ subdir(void)
     printf("chdir dd/../../dd failed\n");
     exit(1);
   }
-  if(chdir("dd/../../../dd") != 0){
+  if(chdir("dd/../../../utrun/dd") != 0){
     printf("chdir dd/../../dd failed\n");
     exit(1);
   }
@@ -1280,7 +1280,7 @@ rmdot(void)
     printf("rm .. worked!\n");
     exit(1);
   }
-  if(chdir("/") != 0){
+  if(chdir("/utrun") != 0){
     printf("chdir / failed\n");
     exit(1);
   }
@@ -1388,7 +1388,7 @@ iref(void)
     unlink("xx");
   }
 
-  chdir("/");
+  chdir("/utrun");
   printf("empty file name OK\n");
 }
 
@@ -1652,7 +1652,7 @@ bigargtest(void)
       args[i] = bigbuf;
     args[MAXARG-1] = 0;
     printf("bigarg test\n");
-    execvp("echo", args);
+    execvp("/echo", args);
     printf("bigarg test ok\n");
     fd = open("bigarg-ok", O_CREATE);
     close(fd);
@@ -1756,7 +1756,7 @@ uio()
 void argptest()
 {
   int fd;
-  fd = open("init", O_RDONLY);
+  fd = open("/init", O_RDONLY);
   if (fd < 0) {
     dprintf(2, "open failed\n");
     exit(1);
@@ -1777,6 +1777,8 @@ rand()
 int
 main(int argc, char *argv[])
 {
+  mkdir("utrun", 0755);
+  chdir("utrun");
   printf("usertests starting\n");
 
   if(open("usertests.ran", 0) >= 0){
