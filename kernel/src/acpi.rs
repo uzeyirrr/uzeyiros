@@ -312,5 +312,6 @@ mod mcfg {
     }
 }
 
+#[cfg(not(test))]
 pub use madt::{cpus, ioapics};
 pub use mcfg::configs as pci_configs;

@@ -504,20 +504,18 @@ pub fn mycpu_id() -> u32 {
 }
 
 pub fn mycpu() -> &'static CPU {
-    use core::mem::transmute;
     let base: u64;
     unsafe {
         asm!("movq %gs:0, {}", out(reg) base, options(att_syntax));
-        transmute::<u64, &CPU>(base)
+        &*ptr::with_exposed_provenance(base.try_into().unwrap())
     }
 }
 
 pub fn mycpu_mut() -> &'static mut CPU {
     unsafe {
-        use core::mem::transmute;
         let base: u64;
         asm!("movq %gs:0, {}", out(reg) base, options(att_syntax));
-        transmute::<u64, &mut CPU>(base)
+        &mut *ptr::with_exposed_provenance_mut(base.try_into().unwrap())
     }
 }
 
