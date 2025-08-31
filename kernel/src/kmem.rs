@@ -138,7 +138,7 @@ impl<'a> Iterator for MemMapIterator<'a> {
         let len = arch::read_u64(&bs[12..20]);
         let typ = match arch::read_u32(&bs[20..24]) {
             1 => MemType::Memory,
-            2 | 3 | 4 => MemType::System,
+            2..=4 => MemType::System,
             _ => MemType::Reserved,
         };
         Some(MemMapEntry {

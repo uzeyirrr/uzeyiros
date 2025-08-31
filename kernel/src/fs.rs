@@ -889,9 +889,9 @@ pub enum CreateType {
     Dev(u32, u32),
 }
 
-impl Into<FileType> for CreateType {
-    fn into(self) -> FileType {
-        match self {
+impl From<CreateType> for FileType {
+    fn from(val: CreateType) -> Self {
+        match val {
             CreateType::File => FileType::File,
             CreateType::Dir => FileType::Dir,
             CreateType::Dev(_, _) => FileType::Dev,

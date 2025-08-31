@@ -97,7 +97,7 @@ impl ProgramHeader {
         if self.mem_size < self.file_size {
             return Err("exec: file and memory size mismatch");
         }
-        if self.virt_addr % arch::PAGE_SIZE as u64 != 0 {
+        if !self.virt_addr.is_multiple_of(arch::PAGE_SIZE as u64) {
             return Err("exec: misaligned section load address");
         }
         if self.virt_addr.wrapping_add(self.mem_size) < self.virt_addr {
@@ -135,7 +135,7 @@ impl ProgramHeader {
 
     fn load_section(&self, pgtbl: &mut vm::PageTable, ip: &fs::Inode) -> Result<()> {
         let va = self.virt_addr as usize;
-        assert_eq!(va as usize % arch::PAGE_SIZE, 0);
+        assert_eq!(va % arch::PAGE_SIZE, 0);
         let file_size = self.file_size as usize;
         for kp in (0..file_size).step_by(arch::PAGE_SIZE) {
             let page = pgtbl.user_addr_to_kern_page(va + kp)?;
@@ -226,7 +226,7 @@ pub fn exec(proc: &proc::Proc, path: &[u8], args: &[&[u8]]) -> Result<()> {
     // Set up for return to userspace.
     unsafe {
         let uctx = proc.user_context_mut();
-        uctx.set_return(core::mem::transmute::<_, extern "C" fn() -> u32>(
+        uctx.set_return(core::mem::transmute::<u64, extern "C" fn() -> u32>(
             entry_addr,
         ));
         uctx.set_rdi(argc as u64);
@@ -238,7 +238,7 @@ pub fn exec(proc: &proc::Proc, path: &[u8], args: &[&[u8]]) -> Result<()> {
 }
 
 fn slice_as_bytes<T>(s: &[T]) -> &[u8] {
-    let len = s.len() * core::mem::size_of::<T>();
+    let len = core::mem::size_of_val(s);
     let ptr = s.as_ptr() as *const u8;
     unsafe { slice::from_raw_parts(ptr, len) }
 }

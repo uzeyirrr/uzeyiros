@@ -253,7 +253,7 @@ pub fn alloc() -> Result<(&'static file::File, &'static file::File)> {
         if !slab.is_empty() {
             *pipes = Some(slab);
         }
-        unsafe { (&*(r as *const PipeReader), &*(w as *const PipeWriter)) }
+        unsafe { (&*r, &*w) }
     };
     let reader_guard = Guard::new(r);
     let writer_guard = Guard::new(w);
@@ -280,7 +280,7 @@ fn dealloc(pipe: &Mutex<Pipe>) {
                 *pipes = Some(current_slab);
             }
         }
-        kalloc::free(unsafe { mem::transmute::<_, &mut Page>(slab) });
+        kalloc::free(unsafe { mem::transmute::<&mut PipeSlab, &mut Page>(slab) });
     } else {
         *pipes = Some(slab);
     }

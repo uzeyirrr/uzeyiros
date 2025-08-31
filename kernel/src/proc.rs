@@ -330,7 +330,7 @@ impl Proc {
     }
 
     fn is_user_addr(&self, va: usize) -> bool {
-        va < self.size() || (USERSTACK <= va && va < USEREND)
+        va < self.size() || (USERSTACK..USEREND).contains(&va)
     }
 
     fn user_region_end(&self, va: usize) -> Option<usize> {
@@ -531,7 +531,9 @@ pub fn yield_if_running() {
 }
 
 pub fn die_if_dead() {
-    if let Some(proc) = try_myproc() && proc.dead() {
+    if let Some(proc) = try_myproc()
+        && proc.dead()
+    {
         proc.exit(1);
     }
 }
