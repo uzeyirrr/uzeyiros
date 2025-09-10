@@ -166,7 +166,7 @@ fn start_simple_shell() {
     // Basit klavye input loop
     let mut input_buffer = [0u8; 256];
     let mut input_pos = 0;
-    let mut prompt_x = 10;
+    let mut prompt_x = 5;
     let mut prompt_y = 22;
     let prompt_text = "uzeyiros> ";
     let input_start_x = prompt_x + prompt_text.len();
@@ -214,23 +214,41 @@ fn start_gui(cga: &mut crate::cga::Cga) {
     // Ekranı temizle
     cga.blank();
     
-    // Basit test - sadece bir kutu çiz
-    cga.draw_box(10, 5, 60, 15);
-    cga.put_string_at(12, 6, "Uzeyiros v1.0.0 - Personal Operating System");
-    cga.put_string_at(12, 7, "==========================================");
-    cga.put_string_at(12, 8, "Author: Uzeyir Ismail Bahtiyar");
-    cga.put_string_at(12, 9, "Email: uzeyirismailbahtiyar@gmail.com");
-    cga.put_string_at(12, 10, "Language: Rust");
-    cga.put_string_at(12, 11, "Architecture: x86_64");
-    cga.put_string_at(12, 12, "Display: CGA");
-    cga.put_string_at(12, 13, "Status: Running");
-    cga.put_string_at(12, 14, "GUI: Active");
-    cga.put_string_at(12, 15, "Welcome to Uzeyiros!");
-    cga.put_string_at(12, 16, "This is a personal operating system.");
-    cga.put_string_at(12, 17, "GUI is working!");
+    // ASCII Logo - ÜzeyirOS (Kompakt)
+    let logo_lines = [
+        "                                                             @@@@",
+        "                                                             @@@@",
+        "                                                                 ",
+        "@@@@@@   @@@@  @@@@@@@@@   @@@@@@@@@ @@@@@@   @@@@  @@@@@@ @@@@@@",
+        "@@@@@@   @@@@ @@@@@@@@@@@  @@@@@@@@@ @@@@@@   @@@@ @@@@@@@ @@@@@@",
+        "  @@@@   @@@@ @@@@   @@@@      @@@@    @@@@   @@@@ @@@@      @@@@",
+        "  @@@@   @@@@ @@@@@@@@@@@    @@@@      @@@@   @@@@ @@@@      @@@@",
+        "  @@@@   @@@@ @@@@@@@@@@@   @@@@       @@@@   @@@@ @@@@      @@@@",
+        "  @@@@@  @@@@ @@@@@       @@@@         @@@@@  @@@@ @@@@      @@@@",
+        "   @@@@@@@@@@  @@@@@@     @@@@@@@@@@    @@@@@@@@@@ @@@@      @@@@",
+        "         @@@@                                                      ",
+        "         @@@@                                                      ",
+        "      @@@@@@@                                                      ",
+        "      @@@@@@                                                       ",
+    ];
+    
+    // Logoyu ekrana yazdır
+    for (i, line) in logo_lines.iter().enumerate() {
+        if i < 25 { // Ekran yüksekliği sınırı
+            cga.put_string_at(0, i, line);
+        }
+    }
+    
+    // Sistem bilgileri kutusu (logo'nun altında)
+    cga.draw_box(5, 15, 70, 6);
+    cga.put_string_at(7, 16, "Uzeyiros v1.1.0 - Personal Operating System");
+    cga.put_string_at(7, 17, "Author: Uzeyir Ismail Bahtiyar | Email: uzeyirismailbahtiyar@gmail.com");
+    cga.put_string_at(7, 18, "Language: Rust | Architecture: x86_64 | Display: CGA");
+    cga.put_string_at(7, 19, "Status: Running | GUI: Active | Shell: Ready");
+    cga.put_string_at(7, 20, "Available Commands: help, echo, info, clear");
     
     // Prompt
-    cga.put_string_at(10, 22, "uzeyiros> ");
+    cga.put_string_at(5, 22, "uzeyiros> ");
 }
 
 fn check_keyboard_input() -> Option<u8> {
@@ -300,21 +318,21 @@ fn handle_command(command: &str) -> usize {
     let mut cga = Cga::new();
     let cmd = command.trim();
     
-    // Çıktıları GUI'nin altına yaz (satır 24'ten başla)
-    let mut output_line = 24;
+    // Çıktıları daha aşağıya yaz (satır 22'den başla)
+    let mut output_line = 22;
     
     match cmd {
         "help" => {
-            cga.put_string_at(10, output_line, "Uzeyiros Shell Komutlari:");
+            cga.put_string_at(5, output_line, "Uzeyiros Shell Komutlari:");
             output_line += 1;
-            cga.put_string_at(10, output_line, "  help  - Bu yardim mesajini gosterir");
+            cga.put_string_at(5, output_line, "  help  - Bu yardim mesajini gosterir");
             output_line += 1;
-            cga.put_string_at(10, output_line, "  clear - Ekrani temizler");
+            cga.put_string_at(5, output_line, "  clear - Ekrani temizler");
             output_line += 1;
-            cga.put_string_at(10, output_line, "  echo  - Mesaj yazdirir");
+            cga.put_string_at(5, output_line, "  echo  - Mesaj yazdirir");
             output_line += 1;
-            cga.put_string_at(10, output_line, "  info  - Sistem bilgilerini gosterir");
-            output_line - 24 // 5 satır
+            cga.put_string_at(5, output_line, "  info  - Sistem bilgilerini gosterir");
+            output_line - 22 // 5 satır
         }
         "clear" => {
             cga.blank();
@@ -323,31 +341,31 @@ fn handle_command(command: &str) -> usize {
         }
         cmd if cmd.starts_with("echo ") => {
             let message = &cmd[5..];
-            cga.put_string_at(10, output_line, "Echo: ");
-            cga.put_string_at(16, output_line, message);
+            cga.put_string_at(5, output_line, "Echo: ");
+            cga.put_string_at(11, output_line, message);
             1 // 1 satır
         }
         "echo" => {
-            cga.put_string_at(10, output_line, "Echo komutu kullanimi: echo <mesaj>");
+            cga.put_string_at(5, output_line, "Echo komutu kullanimi: echo <mesaj>");
             1 // 1 satır
         }
         "info" => {
-            cga.put_string_at(10, output_line, "Uzeyiros v1.0.0");
+            cga.put_string_at(5, output_line, "Uzeyiros v1.1.0");
             output_line += 1;
-            cga.put_string_at(10, output_line, "Rust ile yazilmis isletim sistemi");
+            cga.put_string_at(5, output_line, "Rust ile yazilmis isletim sistemi");
             output_line += 1;
-            cga.put_string_at(10, output_line, "x86_64 mimarisi");
+            cga.put_string_at(5, output_line, "x86_64 mimarisi");
             3 // 3 satır
         }
         "" => {
             0 // Boş komut
         }
         _ => {
-            cga.put_string_at(10, output_line, "Bilinmeyen komut: '");
-            cga.put_string_at(30, output_line, cmd);
-            cga.put_string_at(30 + cmd.len(), output_line, "'");
+            cga.put_string_at(5, output_line, "Bilinmeyen komut: '");
+            cga.put_string_at(25, output_line, cmd);
+            cga.put_string_at(25 + cmd.len(), output_line, "'");
             output_line += 1;
-            cga.put_string_at(10, output_line, "'help' yazarak komutlari gorebilirsiniz.");
+            cga.put_string_at(5, output_line, "'help' yazarak komutlari gorebilirsiniz.");
             2 // 2 satır
         }
     }

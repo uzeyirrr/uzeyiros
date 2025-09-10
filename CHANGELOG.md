@@ -21,6 +21,9 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 - **Dynamic Prompt**: Smart prompt positioning that moves down after each command output
 - **Keyboard Input Handling**: PS/2 keyboard support with real-time character input
 - **CGA Graphics**: Advanced CGA display functions including boxes, text positioning, and character placement
+- **ASCII Logo**: Professional "ÜzeyirOS" ASCII art logo display
+- **Improved Layout**: Better organized GUI with logo and system information panel
+- **QEMU GTK Display**: Enhanced QEMU display with GTK interface for better visibility
 
 ### 🔧 Technical Improvements
 - Fixed build system compatibility issues with custom target specifications
@@ -28,6 +31,8 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 - Enhanced panic handling to prevent system deadlocks
 - Optimized memory management and display buffer handling
 - Better error handling and user feedback system
+- Updated QEMU configuration for better display experience
+- Improved shell output positioning and organization
 
 ### 🎨 User Experience
 - Professional-looking system information display
@@ -35,6 +40,8 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 - Clear visual separation between GUI and shell areas
 - Responsive keyboard input with backspace support
 - Organized command output that doesn't overlap with GUI elements
+- Compact and elegant ASCII logo design
+- Better screen layout with improved information organization
 
 ## [1.0.0] - 2024-12-19
 
