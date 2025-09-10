@@ -25,3 +25,30 @@ Dan Cross <cross@gajendra.net> <crossd@gmail.com> <dcross@google.com>
 Frans Kaashoek <kaashoek@mit.edu>
 Robert Morris <rtm@mit.edu>
 Russ Cox <rsc@swtch.com>
+Austin Clements <austin@google.com>
+Dan Cross <cross@gajendra.net> <crossd@gmail.com> <dcross@google.com>
+Frans Kaashoek <kaashoek@mit.edu>
+Robert Morris <rtm@mit.edu>
+Russ Cox <rsc@swtch.com>
+# When adding J Random Contributor's name to this file,
+# either J's name or J's organization's name should be
+# added to the AUTHORS file, depending on whether the
+# individual or corporate CLA was used.
+
+# Names should be added to this file like so:
+#     Individual's name <submission email address>
+#     Individual's name <submission email address> <email2> <emailN>
+#
+# An entry with multiple email addresses specifies that the
+# first address should be used in the submit logs and
+# that the other addresses should be recognized as the
+# same person when interacting with Gerrit.
+
+# Please keep the list sorted.
+
+Austin Clements <austin@google.com>
+Dan Cross <cross@gajendra.net> <crossd@gmail.com> <dcross@google.com>
+Frans Kaashoek <kaashoek@mit.edu>
+Robert Morris <rtm@mit.edu>
+Russ Cox <rsc@swtch.com>
+Üzeyir İsmail Bahtiyar <uzeyirismailbahtiyar@gmail.com>
