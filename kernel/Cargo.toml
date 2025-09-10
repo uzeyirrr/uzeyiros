@@ -1,6 +1,6 @@
 [package]
 name = "uzeyiros"
-version = "1.0.0"
+version = "1.1.0"
 authors = ["Üzeyir İsmail Bahtiyar <uzeyir@example.com>"]
 description = "ÜzeyirOS - Kişisel İşletim Sistemi"
 edition = "2024"

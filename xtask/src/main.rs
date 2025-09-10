@@ -231,7 +231,7 @@ fn dist(profile: Build) -> Result<()> {
     let status = Command::new(objcopy())
         .arg("--input-target=elf64-x86-64")
         .arg("--output-target=elf32-i386")
-        .arg(format!("target/{}/{}/kernel", ktarget(), profile.dir()))
+        .arg(format!("target/{}/{}/uzeyiros", ktarget(), profile.dir()))
         .arg(format!(
             "target/{}/{}/rxv64.elf32",
             ktarget(),

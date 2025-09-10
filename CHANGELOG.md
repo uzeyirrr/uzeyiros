@@ -7,10 +7,34 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 ## [Unreleased]
 
 ### Planned
-- Graphics interface support
 - Network protocol implementation
 - File system improvements
 - Security features
+- Advanced graphics support
+
+## [1.1.0] - 2024-12-19
+
+### ✨ Added
+- **Interactive GUI Interface**: Beautiful graphical user interface with system information display
+- **Real-time Shell**: Fully functional command-line shell with keyboard input support
+- **Command System**: Complete command processing with help, echo, info, and clear commands
+- **Dynamic Prompt**: Smart prompt positioning that moves down after each command output
+- **Keyboard Input Handling**: PS/2 keyboard support with real-time character input
+- **CGA Graphics**: Advanced CGA display functions including boxes, text positioning, and character placement
+
+### 🔧 Technical Improvements
+- Fixed build system compatibility issues with custom target specifications
+- Improved multi-processor synchronization and CPU management
+- Enhanced panic handling to prevent system deadlocks
+- Optimized memory management and display buffer handling
+- Better error handling and user feedback system
+
+### 🎨 User Experience
+- Professional-looking system information display
+- Intuitive command-line interface
+- Clear visual separation between GUI and shell areas
+- Responsive keyboard input with backspace support
+- Organized command output that doesn't overlap with GUI elements
 
 ## [1.0.0] - 2024-12-19
 

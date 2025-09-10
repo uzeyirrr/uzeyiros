@@ -111,4 +111,49 @@ impl Cga {
         }
         self.set_cursor();
     }
+
+    pub fn puts(&mut self, s: &str) {
+        for b in s.bytes() {
+            self.putb(b);
+        }
+    }
+
+    pub fn putc(&mut self, c: char) {
+        self.putb(c as u8);
+    }
+
+    // Basit GUI fonksiyonları
+    pub fn draw_box(&mut self, x: usize, y: usize, width: usize, height: usize) {
+        // Üst ve alt kenarlar
+        for i in 0..width {
+            self.put_char_at(x + i, y, b'-');
+            self.put_char_at(x + i, y + height - 1, b'-');
+        }
+        
+        // Sol ve sağ kenarlar
+        for i in 0..height {
+            self.put_char_at(x, y + i, b'|');
+            self.put_char_at(x + width - 1, y + i, b'|');
+        }
+        
+        // Köşeler
+        self.put_char_at(x, y, b'+');
+        self.put_char_at(x + width - 1, y, b'+');
+        self.put_char_at(x, y + height - 1, b'+');
+        self.put_char_at(x + width - 1, y + height - 1, b'+');
+    }
+
+    pub fn put_char_at(&mut self, x: usize, y: usize, c: u8) {
+        if x < DISPLAY_WIDTH && y < DISPLAY_HEIGHT {
+            let off = y * DISPLAY_LINE_SIZE + x * 2;
+            let buf = [c, ATTRIBUTE];
+            volatile::copy_slice(&mut self.buffer_mut_slice()[off..off + 2], &buf);
+        }
+    }
+
+    pub fn put_string_at(&mut self, x: usize, y: usize, s: &str) {
+        for (i, b) in s.bytes().enumerate() {
+            self.put_char_at(x + i, y, b);
+        }
+    }
 }
