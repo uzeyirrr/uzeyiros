@@ -92,7 +92,6 @@ pub unsafe extern "C" fn main(boot_info: u64) {
     unsafe {
         CPU::init(&mut *(&raw mut PERCPU0), 0);
         console::init();
-        println!("rxv64...");
         PIC::init();
         trap::vector_init();
         trap::init();
@@ -136,7 +135,14 @@ pub unsafe extern "C" fn mpenter(percpu: &mut Page, id: u32, semaphore: &AtomicB
 }
 
 fn mpmain(id: u32, semaphore: &AtomicBool) {
+
     println!("cpu{} starting", id);
+    if id == 0 {
+        // Ana CPU için ekranı temizle ve hoşgeldin mesajı göster
+        crate::cga::Cga::new().blank();
+        println!("Hosgeldiniz! Ben Uzeyir Ismail Bahtiyar");
+        println!("Uzeyiros Isletim Sistemi basariyla baslatildi!");
+    }
     signal_up(semaphore);
     proc::scheduler();
 }
