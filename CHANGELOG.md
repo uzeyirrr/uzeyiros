@@ -12,6 +12,25 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 - Security features
 - Advanced graphics support
 
+## [1.1.1] - 2024-12-19
+
+### 🐛 Fixed
+- **Unicode Character Display Issue**: Fixed garbled characters in terminal display
+- **CGA Compatibility**: Replaced Unicode box-drawing characters with ASCII equivalents
+- **Character Rendering**: All GUI frames now display correctly with proper ASCII characters
+- **Terminal Display**: Fixed character encoding issues that caused strange symbols to appear
+
+### 🎨 Visual Improvements
+- **New ASCII Logo**: Updated startup logo with cleaner "UzeyirOS" ASCII art design
+- **Better Logo Layout**: Improved logo positioning and spacing for better visual appeal
+- **Consistent Character Set**: All display elements now use ASCII characters for better compatibility
+
+### 🔧 Technical Improvements
+- Replaced `╔╗╚╝║═` Unicode characters with `+|=-` ASCII characters
+- Improved CGA display compatibility for better terminal rendering
+- Enhanced character encoding support for bare-metal environment
+- Updated logo design for better readability and professional appearance
+
 ## [1.1.0] - 2024-12-19
 
 ### ✨ Added

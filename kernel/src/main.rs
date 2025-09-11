@@ -214,23 +214,23 @@ fn start_gui(cga: &mut crate::cga::Cga) {
     // Ekranı temizle
     cga.blank();
     
-    // ASCII Logo - ÜzeyirOS (Kompakt)
-    let logo_lines = [
-        "                                                             @@@@",
-        "                                                             @@@@",
-        "                                                                 ",
-        "@@@@@@   @@@@  @@@@@@@@@   @@@@@@@@@ @@@@@@   @@@@  @@@@@@ @@@@@@",
-        "@@@@@@   @@@@ @@@@@@@@@@@  @@@@@@@@@ @@@@@@   @@@@ @@@@@@@ @@@@@@",
-        "  @@@@   @@@@ @@@@   @@@@      @@@@    @@@@   @@@@ @@@@      @@@@",
-        "  @@@@   @@@@ @@@@@@@@@@@    @@@@      @@@@   @@@@ @@@@      @@@@",
-        "  @@@@   @@@@ @@@@@@@@@@@   @@@@       @@@@   @@@@ @@@@      @@@@",
-        "  @@@@@  @@@@ @@@@@       @@@@         @@@@@  @@@@ @@@@      @@@@",
-        "   @@@@@@@@@@  @@@@@@     @@@@@@@@@@    @@@@@@@@@@ @@@@      @@@@",
-        "         @@@@                                                      ",
-        "         @@@@                                                      ",
-        "      @@@@@@@                                                      ",
-        "      @@@@@@                                                       ",
-    ];
+// ASCII Logo - UzeyirOS (Yeni Tasarım)
+let logo_lines = [
+    "                                                                 ",
+    "                                                                 ",
+    " _|    _|                                                        ",
+    "                                        _|                       ",
+    " _|    _|  _|_|_|_|    _|_|    _|    _|      _|  _|_|            ",
+    " _|    _|      _|    _|_|_|_|  _|    _|  _|  _|_|                ",
+    " _|    _|    _|      _|        _|    _|  _|  _|                  ",
+    "   _|_|    _|_|_|_|    _|_|_|    _|_|_|  _|  _|                  ",
+    "                                     _|                          ",
+    "                                 _|_|                            ",
+    "                                                                 ",
+    "                     UzeyirOS v1.4.0                             ",
+    "                                                                 ",
+];
+
     
     // Logoyu ekrana yazdır
     for (i, line) in logo_lines.iter().enumerate() {
@@ -245,7 +245,7 @@ fn start_gui(cga: &mut crate::cga::Cga) {
     cga.put_string_at(7, 17, "Author: Uzeyir Ismail Bahtiyar | Email: uzeyirismailbahtiyar@gmail.com");
     cga.put_string_at(7, 18, "Language: Rust | Architecture: x86_64 | Display: CGA");
     cga.put_string_at(7, 19, "Status: Running | GUI: Active | Shell: Ready");
-    cga.put_string_at(7, 20, "Available Commands: help, echo, info, clear");
+    cga.put_string_at(7, 20, "Commands: help, portfolio, about, contact, skills, projects, info, clear, exit");
     
     // Prompt
     cga.put_string_at(5, 22, "uzeyiros> ");
@@ -323,16 +323,28 @@ fn handle_command(command: &str) -> usize {
     
     match cmd {
         "help" => {
-            cga.put_string_at(5, output_line, "Uzeyiros Shell Komutlari:");
+            cga.put_string_at(5, output_line, "Uzeyiros Shell Commands:");
             output_line += 1;
-            cga.put_string_at(5, output_line, "  help  - Bu yardim mesajini gosterir");
+            cga.put_string_at(5, output_line, "  help      - Show this help message");
             output_line += 1;
-            cga.put_string_at(5, output_line, "  clear - Ekrani temizler");
+            cga.put_string_at(5, output_line, "  clear     - Clear screen");
             output_line += 1;
-            cga.put_string_at(5, output_line, "  echo  - Mesaj yazdirir");
+            cga.put_string_at(5, output_line, "  echo      - Print message");
             output_line += 1;
-            cga.put_string_at(5, output_line, "  info  - Sistem bilgilerini gosterir");
-            output_line - 22 // 5 satır
+            cga.put_string_at(5, output_line, "  info      - Show system info");
+            output_line += 1;
+            cga.put_string_at(5, output_line, "  portfolio - Portfolio main menu");
+            output_line += 1;
+            cga.put_string_at(5, output_line, "  about     - About me");
+            output_line += 1;
+            cga.put_string_at(5, output_line, "  contact   - Contact info");
+            output_line += 1;
+            cga.put_string_at(5, output_line, "  skills    - Technical skills");
+            output_line += 1;
+            cga.put_string_at(5, output_line, "  projects  - My projects");
+            output_line += 1;
+            cga.put_string_at(5, output_line, "  exit      - Return to main GUI");
+            output_line - 22 // 10 satır
         }
         "clear" => {
             cga.blank();
@@ -346,26 +358,50 @@ fn handle_command(command: &str) -> usize {
             1 // 1 satır
         }
         "echo" => {
-            cga.put_string_at(5, output_line, "Echo komutu kullanimi: echo <mesaj>");
+            cga.put_string_at(5, output_line, "Echo usage: echo <message>");
             1 // 1 satır
         }
         "info" => {
             cga.put_string_at(5, output_line, "Uzeyiros v1.1.0");
             output_line += 1;
-            cga.put_string_at(5, output_line, "Rust ile yazilmis isletim sistemi");
+            cga.put_string_at(5, output_line, "Operating system written in Rust");
             output_line += 1;
-            cga.put_string_at(5, output_line, "x86_64 mimarisi");
+            cga.put_string_at(5, output_line, "x86_64 architecture");
             3 // 3 satır
+        }
+        "portfolio" => {
+            start_portfolio_gui(&mut cga);
+            0
+        }
+        "about" => {
+            start_about_gui(&mut cga);
+            0
+        }
+        "contact" => {
+            start_contact_gui(&mut cga);
+            0
+        }
+        "skills" => {
+            start_skills_gui(&mut cga);
+            0
+        }
+        "projects" => {
+            start_projects_gui(&mut cga);
+            0
+        }
+        "exit" => {
+            start_gui(&mut cga);
+            0 // Ana GUI'ye dön
         }
         "" => {
             0 // Boş komut
         }
         _ => {
-            cga.put_string_at(5, output_line, "Bilinmeyen komut: '");
+            cga.put_string_at(5, output_line, "Unknown command: '");
             cga.put_string_at(25, output_line, cmd);
             cga.put_string_at(25 + cmd.len(), output_line, "'");
             output_line += 1;
-            cga.put_string_at(5, output_line, "'help' yazarak komutlari gorebilirsiniz.");
+            cga.put_string_at(5, output_line, "Type 'help' to see available commands.");
             2 // 2 satır
         }
     }
@@ -373,6 +409,132 @@ fn handle_command(command: &str) -> usize {
 
 fn signal_up(semaphore: &AtomicBool) {
     semaphore.store(true, Ordering::Release);
+}
+
+fn start_portfolio_gui(cga: &mut crate::cga::Cga) {
+    cga.blank();
+    
+    // Ana başlık
+    cga.put_string_at(5, 2, "+==============================================================================+");
+    cga.put_string_at(5, 3, "|                    UZEYIR ISMAIL BAHTIYAR                        |");
+    cga.put_string_at(5, 4, "|                        PORTFOLIO                                 |");
+    cga.put_string_at(5, 5, "+==============================================================================+");
+    
+    // Menü seçenekleri
+    cga.put_string_at(10, 8, "1. About Me (about)");
+    cga.put_string_at(10, 9, "2. Contact Info (contact)");
+    cga.put_string_at(10, 10, "3. Technical Skills (skills)");
+    cga.put_string_at(10, 11, "4. My Projects (projects)");
+    cga.put_string_at(10, 12, "5. System Info (info)");
+    cga.put_string_at(10, 13, "6. Return to Main Menu (exit)");
+    
+    // Alt çerçeve
+    cga.put_string_at(5, 15, "+==============================================================================+");
+    cga.put_string_at(5, 16, "|  Type command: about, contact, skills, projects, info, exit        |");
+    cga.put_string_at(5, 17, "+==============================================================================+");
+}
+
+fn start_about_gui(cga: &mut crate::cga::Cga) {
+    cga.blank();
+    
+    // Başlık
+    cga.put_string_at(5, 2, "+==============================================================================+");
+    cga.put_string_at(5, 3, "|                                  ABOUT ME                                  |");
+    cga.put_string_at(5, 4, "+==============================================================================+");
+    
+    // İçerik
+    cga.put_string_at(10, 6, "Hello! I am Uzeyir Ismail Bahtiyar.");
+    cga.put_string_at(10, 7, "I am a passionate software developer.");
+    cga.put_string_at(10, 8, "");
+    cga.put_string_at(10, 9, "I have experience in system programming,");
+    cga.put_string_at(10, 10, "operating system development, and");
+    cga.put_string_at(10, 11, "low-level programming.");
+    cga.put_string_at(10, 12, "");
+    cga.put_string_at(10, 13, "This UzeyirOS project is part of my journey");
+    cga.put_string_at(10, 14, "in developing my own operating system");
+    cga.put_string_at(10, 15, "using Rust for bare-metal programming.");
+    
+    // Alt çerçeve
+    cga.put_string_at(5, 17, "+==============================================================================+");
+    cga.put_string_at(5, 18, "|                    Type 'exit' to return to main menu                      |");
+    cga.put_string_at(5, 19, "+==============================================================================+");
+}
+
+fn start_contact_gui(cga: &mut crate::cga::Cga) {
+    cga.blank();
+    
+    // Başlık
+    cga.put_string_at(5, 2, "+==============================================================================+");
+    cga.put_string_at(5, 3, "|                                CONTACT                                   |");
+    cga.put_string_at(5, 4, "+==============================================================================+");
+    
+    // İletişim bilgileri
+    cga.put_string_at(10, 6, "Email: uzeyirismailbahtiyar@gmail.com");
+    cga.put_string_at(10, 7, "GitHub: https://github.com/uzeyirrr");
+    cga.put_string_at(10, 8, "LinkedIn: https://www.linkedin.com/in/uzeyirismail/");
+    cga.put_string_at(10, 9, "Website: yezuri.com");
+    cga.put_string_at(10, 10, "");
+    cga.put_string_at(10, 11, "Feel free to contact me to discuss");
+    cga.put_string_at(10, 12, "projects or potential collaborations!");
+    
+    // Alt çerçeve
+    cga.put_string_at(5, 14, "+==============================================================================+");
+    cga.put_string_at(5, 15, "|                    Type 'exit' to return to main menu                      |");
+    cga.put_string_at(5, 16, "+==============================================================================+");
+}
+
+fn start_skills_gui(cga: &mut crate::cga::Cga) {
+    cga.blank();
+    
+    // Başlık
+    cga.put_string_at(5, 2, "+==============================================================================+");
+    cga.put_string_at(5, 3, "|                            TECHNICAL SKILLS                             |");
+    cga.put_string_at(5, 4, "+==============================================================================+");
+    
+    // Yetenekler
+    cga.put_string_at(10, 6, "Rust - System programming, bare-metal");
+    cga.put_string_at(10, 7, "Linux - System administration, shell scripting");
+    cga.put_string_at(10, 8, "C/C++ - System programming, embedded");
+    cga.put_string_at(10, 9, "Python - Web development, automation");
+    cga.put_string_at(10, 10, "JavaScript/TypeScript - Frontend/Backend");
+    cga.put_string_at(10, 11, "SQL - Database design and management");
+    cga.put_string_at(10, 12, "Docker - Containerization");
+    cga.put_string_at(10, 13, "Cloud - AWS, Azure");
+    cga.put_string_at(10, 14, "Git - Version control");
+    cga.put_string_at(10, 15, "Mobile - React Native");
+    
+    // Alt çerçeve
+    cga.put_string_at(5, 17, "+==============================================================================+");
+    cga.put_string_at(5, 18, "|                    Type 'exit' to return to main menu                      |");
+    cga.put_string_at(5, 19, "+==============================================================================+");
+}
+
+fn start_projects_gui(cga: &mut crate::cga::Cga) {
+    cga.blank();
+    
+    // Başlık
+    cga.put_string_at(5, 2, "+==============================================================================+");
+    cga.put_string_at(5, 3, "|                               MY PROJECTS                               |");
+    cga.put_string_at(5, 4, "+==============================================================================+");
+    
+    // Projeler
+    cga.put_string_at(10, 6, "UzeyirOS - Operating system written in Rust");
+    cga.put_string_at(10, 7, "   * Bare-metal programming");
+    cga.put_string_at(10, 8, "   * Multi-processor support");
+    cga.put_string_at(10, 9, "   * Interactive GUI and shell");
+    cga.put_string_at(10, 10, "");
+    cga.put_string_at(10, 11, "Web Applications");
+    cga.put_string_at(10, 12, "   * React/Node.js projects");
+    cga.put_string_at(10, 13, "   * RESTful APIs");
+    cga.put_string_at(10, 14, "");
+    cga.put_string_at(10, 15, "Mobile Applications");
+    cga.put_string_at(10, 16, "   * React Native projects");
+    cga.put_string_at(10, 17, "   * Cross-platform solutions");
+    
+    // Alt çerçeve
+    cga.put_string_at(5, 19, "+==============================================================================+");
+    cga.put_string_at(5, 20, "|                    Type 'exit' to return to main menu                      |");
+    cga.put_string_at(5, 21, "+==============================================================================+");
 }
 
 #[cfg(not(test))]
