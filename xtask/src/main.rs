@@ -301,8 +301,7 @@ fn run() -> Result<()> {
         .arg("8")
         .arg("-m")
         .arg("8192")
-        .arg("-display")
-        .arg("gtk")
+        .arg("-curses")
         .arg("-device")
         .arg("ahci,id=ahci0")
         .arg("-drive")
@@ -327,11 +326,9 @@ fn accelrun() -> Result<()> {
     let profile = Build::Release;
     dist(profile)?;
     let status = Command::new(qemu_system_x86_64())
-        //.arg("-nographic")
-        .arg("-display")
-        .arg("gtk")
+        .arg("-curses")
         .arg("-accel")
-        .arg("kvm")
+        .arg("kvm") 
         .arg("-M")
         .arg("q35")
         .arg("-cpu")

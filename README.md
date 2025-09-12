@@ -51,11 +51,14 @@ source ~/.cargo/env
 rustup toolchain install nightly
 rustup default nightly
 
-# QEMU (Fedora)
-sudo dnf install qemu-system-x86_64
+# QEMU (Manjaro/Arch)
+sudo pacman -S qemu-system-x86 base-devel
+
+# VNC Viewer (for GUI)
+sudo pacman -S tigervnc
 
 # LLVM (for objcopy)
-sudo dnf install llvm
+sudo pacman -S llvm
 ```
 
 ### 2. Build the Project
@@ -76,12 +79,17 @@ gcc -o bin/mkfs bin/mkfs.c
 ### 4. Run the Operating System
 
 ```bash
-# Normal run
-cargo xtask run
+# Build and run with VNC (recommended)
+env -u CURSOR_AGENT -u RUSTUP_TOOLCHAIN PATH="$HOME/.cargo/bin:$PATH" cargo xtask run
 
-# Accelerated run (with KVM)
-cargo xtask accelrun
+# Or run QEMU directly with VNC
+qemu-system-x86_64 -cpu qemu64,pdpe1gb,xsaveopt,fsgsbase,apic,msr -smp 8 -m 8192 -M q35 -device ahci,id=ahci0 -drive id=sdahci0,file=sdahci0.img,if=none,format=raw -device ide-hd,drive=sdahci0,bus=ahci0.0 -kernel target/x86_64-unknown-none-elf/release/rxv64.elf32 -vnc :0
+
+# Connect with VNC viewer
+vncviewer localhost:5900
 ```
+
+**Note:** If you encounter Cursor proxy errors, use the environment variable workaround shown above.
 
 ## 🎮 Usage
 
@@ -89,6 +97,18 @@ When the operating system starts:
 1. **Welcome message** will be displayed
 2. **Keyboard input** is available
 3. **Basic commands** can be used
+
+### Troubleshooting
+
+**Cursor Proxy Error:**
+```bash
+env -u CURSOR_AGENT -u RUSTUP_TOOLCHAIN PATH="$HOME/.cargo/bin:$PATH" cargo xtask run
+```
+
+**QEMU Display Issues:**
+- Use VNC mode: `-vnc :0`
+- Connect with: `vncviewer localhost:5900`
+- Stop QEMU: `Ctrl+C` in terminal
 
 
 ## 🏗️ Project Structure
